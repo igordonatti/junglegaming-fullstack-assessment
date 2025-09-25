@@ -11,6 +11,7 @@ import { DataSource } from 'typeorm';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         try {
+          const isDev = configService.get<string>('NODE_ENV') !== 'production';
           const dataSource = new DataSource({
             type: 'postgres',
             host: configService.get<string>('DB_HOST'),
@@ -19,7 +20,7 @@ import { DataSource } from 'typeorm';
             password: configService.get<string>('DB_PASSWORD'),
             database: configService.get<string>('DB_NAME'),
             entities: [`${__dirname}/../**/**.entity{.ts,.js}`],
-            synchronize: false,
+            synchronize: isDev,
             logging: true,
           });
           await dataSource.initialize();
