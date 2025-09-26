@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/await-thenable */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   HttpException,
@@ -14,6 +11,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { ResponseUserDTO } from './dto/responseUser.dto';
 import { plainToInstance } from 'class-transformer';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -25,7 +23,8 @@ export class UsersService {
 
   async createUser(createUser: CreateUserDTO): Promise<ResponseUserDTO> {
     try {
-      const user = await this.userRepository.create(createUser);
+      const user = this.userRepository.create(createUser);
+      user.password = await bcrypt.hash(user.password, 10);
       await this.userRepository.save(user);
 
       return plainToInstance(ResponseUserDTO, user, {

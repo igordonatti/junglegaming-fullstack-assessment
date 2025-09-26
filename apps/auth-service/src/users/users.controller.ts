@@ -1,13 +1,14 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { CreateUser, UsersService } from './users.service';
+import { Body, Controller } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { CreateUserDTO } from './dto/createUser.dto';
+import { MessagePattern } from '@nestjs/microservices';
 
-@Controller('users')
+@Controller()
 export class UsersController {
   constructor(private userService: UsersService) {}
 
-  @Post()
-  //   handles the post request to /users/create endpoint to create new user
-  async signUp(@Body() user: CreateUser) {
+  @MessagePattern({ cmd: 'auth_create_user' })
+  async signUp(@Body() user: CreateUserDTO) {
     return await this.userService.createUser(user);
   }
 }

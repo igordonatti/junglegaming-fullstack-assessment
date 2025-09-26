@@ -1,16 +1,13 @@
 import { Exclude, Expose } from 'class-transformer';
 
 @Exclude()
-export class ResponseUserDTO {
+export class ResponseValidateUserDTO {
   @Expose()
   id: string;
-
-  @Expose()
-  name: string;
 
   @Expose()
   email: string;
 
   @Expose()
-  passord: string;
+  name: string;
 }
