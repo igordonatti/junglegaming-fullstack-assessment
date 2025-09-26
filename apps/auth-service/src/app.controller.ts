@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern } from '@nestjs/microservices';
@@ -12,7 +13,9 @@ export class AppController {
   }
 
   @MessagePattern({ cmd: 'get_auth_health' })
-  getAuthHealth(): string {
-    return 'Auth service is up and running';
+  getAuthHealth(): { status: string } {
+    return {
+      status: 'Auth service is up and running',
+    };
   }
 }

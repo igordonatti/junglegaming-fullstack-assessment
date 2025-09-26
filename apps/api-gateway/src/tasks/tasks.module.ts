@@ -1,20 +1,20 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
+import { TasksController } from './tasks.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
     ClientsModule.register([
       {
-        name: 'AUTH_SERVICE',
+        name: 'TASKS_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: '0.0.0.0', // auth-service host registered
-          port: 3002,
+          host: '0.0.0.0',
+          port: 3003,
         },
       },
     ]),
   ],
-  controllers: [AuthController],
+  controllers: [TasksController],
 })
-export class AuthModule {}
+export class TasksModule {}
