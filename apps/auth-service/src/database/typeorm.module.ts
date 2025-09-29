@@ -21,7 +21,6 @@ import { DataSource } from 'typeorm';
             database: configService.get<string>('DB_NAME'),
             entities: [`${__dirname}/../**/**.entity{.ts,.js}`],
             synchronize: isDev,
-            logging: true,
           });
           await dataSource.initialize();
           console.log('Database connected successfully');

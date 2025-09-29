@@ -9,6 +9,7 @@ import { UserPayload } from './dto/UserPayload.dto';
 import { UserTokenDTO } from './dto/UserToken.dto';
 import { LoginRequestDTO } from './dto/LoginRequest.dto';
 import * as bcrypt from 'bcrypt';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,6 @@ export class AuthService {
     const jwtToken = this.jwtService.sign(payload);
 
     return {
-      ...user,
       access_token: jwtToken,
     };
   }
@@ -35,19 +35,19 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
-      throw new HttpException('Email not found.', HttpStatus.NOT_FOUND);
+      throw new RpcException(
+        new HttpException('Email não encontrado.', HttpStatus.NOT_FOUND),
+      );
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.passord);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Senha incorreta!', HttpStatus.UNAUTHORIZED);
     }
 
-    return {
-      ...user,
-      password: undefined,
-    };
+    const { ...safeUser } = user;
+    return safeUser as unknown as User;
   }
 
   validateToken(token: string) {

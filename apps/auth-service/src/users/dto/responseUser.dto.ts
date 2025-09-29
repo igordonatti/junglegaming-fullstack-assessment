@@ -6,11 +6,11 @@ export class ResponseUserDTO {
   id: string;
 
   @Expose()
-  name: string;
+  username: string;
 
   @Expose()
   email: string;
 
   @Expose()
-  passord: string;
+  password: string;
 }

@@ -1,25 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
-  HttpException,
-  HttpStatus,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { ResponseUserDTO } from './dto/responseUser.dto';
 import { plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class UsersService {
-  private userRepository: Repository<User>;
   private logger = new Logger();
-  constructor(private dataSource: DataSource) {
-    this.userRepository = this.dataSource.getRepository(User);
-  }
+
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
   async createUser(createUser: CreateUserDTO): Promise<ResponseUserDTO> {
     try {
@@ -32,32 +34,24 @@ export class UsersService {
       });
     } catch (err) {
       if (err.code == 23505) {
-        this.logger.error(err.message, err.stack);
-        throw new HttpException('Email already exists', HttpStatus.CONFLICT);
+        this.logger.error(err.message);
+        throw new RpcException(new ConflictException('Email já existente.'));
       }
-      this.logger.error(err.message, err.stack);
+      this.logger.error(err.message);
       throw new InternalServerErrorException(
-        'Something went wrong, Try again!',
+        'Algo deu errado, tente novamente!',
       );
     }
   }
 
-  async findByEmail(email: string): Promise<ResponseUserDTO> {
+  async findByEmail(email: string): Promise<User | null> {
     try {
-      const user = await this.userRepository.findOneBy({ email });
-
-      return plainToInstance(ResponseUserDTO, user, {
-        excludeExtraneousValues: true,
-      });
+      const user = await this.userRepository.findOne({ where: { email } });
+      return user;
     } catch (err) {
-      if (err.code === 23505) {
-        this.logger.error(err.message, err.stack);
-        throw new HttpException('Email already exists', HttpStatus.CONFLICT);
-      }
-
       this.logger.error(err.message, err.stack);
       throw new InternalServerErrorException(
-        'Sommething went wrong, Try again!',
+        'Algo deu errado, tente novamente!',
       );
     }
   }
