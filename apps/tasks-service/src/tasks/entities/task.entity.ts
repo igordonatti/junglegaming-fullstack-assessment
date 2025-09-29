@@ -1,14 +1,21 @@
-import { Comment } from 'src/comments/comments.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Comment } from 'src/comments/entities/comments.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-enum TASK_STATUS {
+export enum TASK_STATUS {
   TODO,
   IN_PROGRESS,
   REVIEW,
   DONE,
 }
 
-enum PRIORITY {
+export enum PRIORITY {
   LOW,
   MEDIUM,
   HIGH,
@@ -40,4 +47,10 @@ export class Task {
 
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  udpated_at: Date;
 }

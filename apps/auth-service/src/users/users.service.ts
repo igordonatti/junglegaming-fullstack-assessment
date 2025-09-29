@@ -38,8 +38,8 @@ export class UsersService {
         throw new RpcException(new ConflictException('Email já existente.'));
       }
       this.logger.error(err.message);
-      throw new InternalServerErrorException(
-        'Algo deu errado, tente novamente!',
+      throw new RpcException(
+        new InternalServerErrorException('Algo deu errado, tente novamente!'),
       );
     }
   }
