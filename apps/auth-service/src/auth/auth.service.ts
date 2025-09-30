@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
@@ -57,5 +62,22 @@ export class AuthService {
       throw new HttpException('Invalid token.', HttpStatus.UNAUTHORIZED);
 
     return decoded;
+  }
+
+  async updateRefreshTokenHash(userId: string, refreshToken: string) {
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.usersService.updateRefreshTokenHash(userId, hashedRefreshToken);
+  }
+
+  async refreshTokens(userId: string, rt: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user || !user.refreshToken)
+      throw new ForbiddenException('Access Denied');
+
+    const tokensMatch = await bcrypt.compare(rt, user.refreshToken);
+    if (!tokensMatch) throw new ForbiddenException('Access Denied');
+
+    // Gera novos tokens e atualiza o hash no banco
+    return this.login(user as User);
   }
 }

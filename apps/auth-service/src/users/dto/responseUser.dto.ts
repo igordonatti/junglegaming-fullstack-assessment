@@ -12,5 +12,5 @@ export class ResponseUserDTO {
   email: string;
 
   @Expose()
-  password: string;
+  refreshToken: string;
 }

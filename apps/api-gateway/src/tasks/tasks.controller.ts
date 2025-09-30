@@ -1,5 +1,8 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { Body, Controller, Get, Inject, Post, Req } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import CreateTaskDTO from './dto/createTask.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -11,5 +14,17 @@ export class TasksController {
   getTasksHealth() {
     console.log('Health check requested from api gateway to: tasks');
     return this.tasksClient.send({ cmd: 'get_tasks_health' }, {});
+  }
+
+  @Post()
+  createTask(@Body() createTaskDto: CreateTaskDTO, @Req() req) {
+    const user = req.user;
+
+    const payload = {
+      createTaskDto,
+      userId: user.id,
+    };
+
+    return this.tasksClient.send({ cmd: 'create_task' }, payload);
   }
 }

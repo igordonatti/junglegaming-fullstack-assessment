@@ -14,7 +14,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     super();
   }
 
-  canActivate(context: ExecutionContext): Promise<boolean> | boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -24,13 +24,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
 
-    const canActivate = super.canActivate(context);
+    const canActivate = await super.canActivate(context);
+
+    console.log('canActivate', canActivate);
 
     if (typeof canActivate === 'boolean') {
       return canActivate;
     }
 
-    const canActivatePromise = canActivate as Promise<boolean>;
+    const canActivatePromise = canActivate as unknown as Promise<boolean>;
 
     return canActivatePromise.catch((error) => {
       if (error instanceof UnauthorizedError) {

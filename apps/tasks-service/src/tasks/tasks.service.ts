@@ -7,8 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Task } from './entities/task.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import CreaeteTaskDTO from './dto/createTask.dto';
 import { RpcException } from '@nestjs/microservices';
 import { UpdateTaskDTO } from './dto/updateTask.dto';
@@ -16,10 +15,11 @@ import { UpdateTaskDTO } from './dto/updateTask.dto';
 @Injectable()
 export class TasksService {
   private logger = new Logger();
+  private readonly taskRepository: Repository<Task>;
 
-  constructor(
-    @InjectRepository(Task) private readonly taskRepository: Repository<Task>,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {
+    this.taskRepository = this.dataSource.getRepository(Task);
+  }
 
   async createTask(taskDTO: CreaeteTaskDTO, user: { userId: string }) {
     try {

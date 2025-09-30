@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -13,6 +14,7 @@ import { plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RpcException } from '@nestjs/microservices';
+import { validate as validateUuid } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -54,5 +56,39 @@ export class UsersService {
         'Algo deu errado, tente novamente!',
       );
     }
+  }
+
+  async findById(id: string): Promise<ResponseUserDTO> {
+    try {
+      const isValidId = validateUuid(id);
+      if (!isValidId) {
+        throw new RpcException(new ForbiddenException('ID inválido'));
+      }
+
+      const user = await this.userRepository.findOne({ where: { id } });
+
+      if (!user) {
+        throw new RpcException(
+          new ForbiddenException('Usuário não encontrado'),
+        );
+      }
+
+      return plainToInstance(ResponseUserDTO, user, {
+        excludeExtraneousValues: true,
+      });
+    } catch (err) {
+      if (err instanceof RpcException) throw err;
+      this.logger.error(err.message, err.stack);
+      throw new InternalServerErrorException(
+        'Algo deu errado, tente novamente!',
+      );
+    }
+  }
+
+  async updateRefreshTokenHash(userId: string, refreshToken: string) {
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.userRepository.update(userId, {
+      refreshToken: hashedRefreshToken,
+    });
   }
 }

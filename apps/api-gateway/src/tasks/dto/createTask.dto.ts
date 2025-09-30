@@ -1,5 +1,18 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { PRIORITY, TASK_STATUS } from '../entities/task.entity';
+
+export enum TASK_STATUS {
+  TODO,
+  IN_PROGRESS,
+  REVIEW,
+  DONE,
+}
+
+export enum PRIORITY {
+  LOW,
+  MEDIUM,
+  HIGH,
+  URGENT,
+}
 
 export default class CreateTaskDTO {
   @IsNotEmpty()
