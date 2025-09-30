@@ -3,7 +3,9 @@ import { TasksService } from './tasks.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import CreateTaskDTO from './dto/createTask.dto';
 import { UpdateTaskDTO } from './dto/updateTask.dto';
-import { UserPayload } from 'src/payloads/user.payload';
+import { UserPayload } from 'src/common/payloads/user.payload';
+import { PaginationQueryDTO } from 'src/common/dto/pagination-query.dto';
+import { DeleteTaskDTO } from './dto/deleteTask.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -11,11 +13,13 @@ export class TasksController {
 
   @MessagePattern({ cmd: 'create_task' })
   async createTask(
-    @Payload() payload: { createTaskDto: CreateTaskDTO; user: UserPayload },
+    @Payload() payload: { createTaskDto: CreateTaskDTO; userId: string },
   ) {
+    console.log(payload);
+
     return await this.taskService.createTask(
       payload.createTaskDto,
-      payload.user,
+      payload.userId,
     );
   }
 
@@ -30,12 +34,25 @@ export class TasksController {
   }
 
   @MessagePattern({ cmd: 'delete_task' })
-  async deleteTask(@Payload() payload: { taskId: string; user: UserPayload }) {
-    return await this.taskService.deleteTask(payload.taskId, payload.user);
+  async deleteTask(
+    @Payload() payload: { deleteTaskDto: DeleteTaskDTO; userId: string },
+  ) {
+    return await this.taskService.deleteTask(
+      payload.deleteTaskDto.taskId,
+      payload.userId,
+    );
   }
 
   @MessagePattern({ cmd: 'get_task_by_id' })
   async getTaskById(@Payload() payload: { taskId: string }) {
     return await this.taskService.getTaskById(payload.taskId);
+  }
+
+  @MessagePattern({ cmd: 'get_tasks' })
+  findAll(@Payload() paginationQuery: PaginationQueryDTO) {
+    return this.taskService.findAll({
+      page: paginationQuery.page || 1,
+      limit: paginationQuery.limit || 20,
+    });
   }
 }

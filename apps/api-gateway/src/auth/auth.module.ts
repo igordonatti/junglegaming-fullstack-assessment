@@ -2,11 +2,16 @@ import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoginValidationMiddleware } from './middleware/login-validation.middleware';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
+    ConfigModule,
+    PassportModule,
     ClientsModule.register([
       {
         name: 'AUTH_SERVICE',
@@ -28,6 +33,7 @@ import { LoginValidationMiddleware } from './middleware/login-validation.middlew
     }),
   ],
   controllers: [AuthController],
+  providers: [JwtStrategy, LocalStrategy],
   exports: [JwtModule],
 })
 export class AuthModule {

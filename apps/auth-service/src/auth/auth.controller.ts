@@ -1,6 +1,6 @@
-import { Body, Controller } from '@nestjs/common';
+import { Body, Controller, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, RpcException } from '@nestjs/microservices';
 import { LoginRequestDTO } from './dto/LoginRequest.dto';
 import { RefreshTokensDTO } from './dto/RefreshTokens.dto';
 
@@ -18,5 +18,17 @@ export class AuthController {
   @MessagePattern({ cmd: 'auth_refresh_tokens' })
   async refreshTokens(@Body() body: RefreshTokensDTO) {
     return await this.authService.refreshTokens(body.userId, body.refreshToken);
+  }
+
+  @MessagePattern({ cmd: 'auth_validate_user' })
+  async validateUser(@Body() body: LoginRequestDTO) {
+    const user = await this.authService.validateUser(body);
+    if (!user) {
+      // É importante jogar uma exceção que o gateway entenda
+      throw new RpcException(
+        new UnauthorizedException('Credenciais inválidas'),
+      );
+    }
+    return user;
   }
 }

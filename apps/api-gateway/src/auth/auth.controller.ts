@@ -27,6 +27,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @isPublic()
   login(@Body() loginDto: LoginDTO) {
     this.logger.log('Login User requested from api gateway');
     return this.authClient.send({ cmd: 'auth_login' }, loginDto);

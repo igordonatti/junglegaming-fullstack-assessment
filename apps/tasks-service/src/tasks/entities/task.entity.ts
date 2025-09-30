@@ -9,17 +9,17 @@ import {
 } from 'typeorm';
 
 export enum TASK_STATUS {
-  TODO,
-  IN_PROGRESS,
-  REVIEW,
-  DONE,
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  REVIEW = 'REVIEW',
+  DONE = 'DONE',
 }
 
 export enum PRIORITY {
-  LOW,
-  MEDIUM,
-  HIGH,
-  URGENT,
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT',
 }
 
 @Entity({ name: 'task' })
