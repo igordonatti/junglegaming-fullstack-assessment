@@ -15,15 +15,27 @@ import { UserTokenDTO } from './dto/UserToken.dto';
 import { LoginRequestDTO } from './dto/LoginRequest.dto';
 import * as bcrypt from 'bcrypt';
 import { RpcException } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async login(user: User): Promise<UserTokenDTO> {
+    const atSecret = this.configService.get<string>('AT_SECRET');
+    const rtSecret = this.configService.get<string>('RT_SECRET');
+
+    if (!atSecret) {
+      throw new Error('JWT_SECRET is not defined in configuration');
+    }
+    if (!rtSecret) {
+      throw new Error('RT_SECRET is not defined in configuration');
+    }
+
     const payload: UserPayload = {
       sub: user.id,
       email: user.email,
@@ -32,19 +44,18 @@ export class AuthService {
     const [access_token, refreshToken] = await Promise.all([
       // Access Token de curta duração
       this.jwtService.signAsync(payload, {
-        secret: process.env.AT_SECRET,
+        secret: atSecret,
         expiresIn: '15m',
       }),
       // Refresh Token de longa duração
       this.jwtService.signAsync(payload, {
-        secret: process.env.RT_SECRET,
+        secret: rtSecret,
         expiresIn: '7d',
       }),
     ]);
 
     await this.updateRefreshTokenHash(user.id, refreshToken);
 
-    // Retorna os dois tokens
     return { access_token, refreshToken };
   }
 
@@ -52,6 +63,7 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
+      console.log('Email não encontrado.');
       throw new RpcException(
         new HttpException('Email não encontrado.', HttpStatus.NOT_FOUND),
       );
@@ -60,6 +72,7 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
+      console.log('Senha incorreta.');
       throw new HttpException('Senha incorreta!', HttpStatus.UNAUTHORIZED);
     }
 

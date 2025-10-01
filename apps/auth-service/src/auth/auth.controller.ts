@@ -1,4 +1,4 @@
-import { Body, Controller, UnauthorizedException } from '@nestjs/common';
+import { Controller, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { LoginRequestDTO } from './dto/LoginRequest.dto';
@@ -9,19 +9,21 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @MessagePattern({ cmd: 'auth_login' })
-  async login(@Body() body: LoginRequestDTO) {
+  async login(@Payload() body: LoginRequestDTO) {
     return await this.authService
       .validateUser(body)
       .then((user) => this.authService.login(user));
   }
 
   @MessagePattern({ cmd: 'refresh_tokens' })
-  async refreshTokens(@Body() body: RefreshTokensDTO) {
+  async refreshTokens(@Payload() body: RefreshTokensDTO) {
     return await this.authService.refreshTokens(body.userId, body.refreshToken);
   }
 
   @MessagePattern({ cmd: 'auth_validate_user' })
-  async validateUser(@Body() body: LoginRequestDTO) {
+  async validateUser(@Payload() body: LoginRequestDTO) {
+    console.log('Validando usuário:', body);
+
     const user = await this.authService.validateUser(body);
     if (!user) {
       // É importante jogar uma exceção que o gateway entenda

@@ -4,8 +4,4 @@ export class CreateCommentDTO {
   @IsNotEmpty()
   @IsString()
   content: string;
-
-  @IsNotEmpty()
-  @IsString()
-  taskId: string;
 }
