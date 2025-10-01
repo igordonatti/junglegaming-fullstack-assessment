@@ -3,7 +3,6 @@ import { TasksService } from './tasks.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import CreateTaskDTO from './dto/createTask.dto';
 import { UpdateTaskDTO } from './dto/updateTask.dto';
-import { UserPayload } from 'src/common/payloads/user.payload';
 import { PaginationQueryDTO } from 'src/common/dto/pagination-query.dto';
 import { DeleteTaskDTO } from './dto/deleteTask.dto';
 
@@ -15,8 +14,6 @@ export class TasksController {
   async createTask(
     @Payload() payload: { createTaskDto: CreateTaskDTO; userId: string },
   ) {
-    console.log(payload);
-
     return await this.taskService.createTask(
       payload.createTaskDto,
       payload.userId,
@@ -25,11 +22,11 @@ export class TasksController {
 
   @MessagePattern({ cmd: 'update_task' })
   async updateTask(
-    @Payload() payload: { updateTaskDto: UpdateTaskDTO; user: UserPayload },
+    @Payload() payload: { updateTaskDto: UpdateTaskDTO; userId: string },
   ) {
     return await this.taskService.updateTask(
       payload.updateTaskDto,
-      payload.user,
+      payload.userId,
     );
   }
 

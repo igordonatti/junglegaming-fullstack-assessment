@@ -6,12 +6,15 @@ import {
   Delete,
   Get,
   Inject,
-  Param,
   Post,
+  Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import CreateTaskDTO from './dto/createTask.dto';
+import { DeleteTaskDTO } from './dto/deleteTask.dto';
+import { UpdateTaskDTO } from './dto/updateTask.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -42,15 +45,27 @@ export class TasksController {
     return this.tasksClient.send({ cmd: 'get_tasks' }, {});
   }
 
-  @Delete(':taskId')
-  deleteTask(@Param('taskId') taskId: string, @Req() req) {
+  @Delete()
+  deleteTask(@Query() deleteTaskDto: DeleteTaskDTO, @Req() req) {
     const user = req.user;
 
     const payload = {
-      taskId,
+      deleteTaskDto,
       userId: user.id,
     };
 
     return this.tasksClient.send({ cmd: 'delete_task' }, payload);
+  }
+
+  @Put()
+  updateTask(@Body() updateTaskDto: UpdateTaskDTO, @Req() req) {
+    const user = req.user;
+
+    const payload = {
+      updateTaskDto,
+      userId: user.id,
+    };
+
+    return this.tasksClient.send({ cmd: 'update_task' }, payload);
   }
 }

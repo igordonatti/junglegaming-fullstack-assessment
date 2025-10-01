@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   ForbiddenException,
@@ -27,6 +30,8 @@ export class TasksService {
   }
 
   async createTask(taskDTO: CreaeteTaskDTO, userId: string) {
+    console.log('service', taskDTO, userId);
+
     try {
       const task = this.taskRepository.create({
         ...taskDTO,
@@ -41,19 +46,21 @@ export class TasksService {
     }
   }
 
-  async updateTask(taskDTO: UpdateTaskDTO, user: { userId: string }) {
+  async updateTask(updateTaskDto: UpdateTaskDTO, userId: string) {
     try {
-      const task = await this.taskRepository.findOneBy({ id: taskDTO.taskId });
+      const task = await this.taskRepository.findOneBy({
+        id: updateTaskDto.taskId,
+      });
 
       if (!task)
         throw new RpcException(new NotFoundException('Task não encontrada.'));
 
-      if (task.creatorId !== user.userId)
+      if (task.creatorId !== userId)
         throw new RpcException(
           new ForbiddenException('Você não é autorizado a editar esta task.'),
         );
 
-      Object.assign(task, taskDTO);
+      Object.assign(task, updateTaskDto);
       return this.taskRepository.save(task);
     } catch (err) {
       this.logger.error(err.message);
@@ -100,7 +107,7 @@ export class TasksService {
     }
   }
 
-  async findAll(options: IPaginationOptions): Promise<Pagination<Task>> {
+  findAll(options: IPaginationOptions): Promise<Pagination<Task>> {
     const queryBuilder = this.taskRepository.createQueryBuilder('task');
     queryBuilder.orderBy('task.created_at', 'DESC');
 

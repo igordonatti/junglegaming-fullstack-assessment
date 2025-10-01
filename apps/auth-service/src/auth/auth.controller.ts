@@ -1,6 +1,6 @@
 import { Body, Controller, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { MessagePattern, RpcException } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { LoginRequestDTO } from './dto/LoginRequest.dto';
 import { RefreshTokensDTO } from './dto/RefreshTokens.dto';
 
@@ -15,7 +15,7 @@ export class AuthController {
       .then((user) => this.authService.login(user));
   }
 
-  @MessagePattern({ cmd: 'auth_refresh_tokens' })
+  @MessagePattern({ cmd: 'refresh_tokens' })
   async refreshTokens(@Body() body: RefreshTokensDTO) {
     return await this.authService.refreshTokens(body.userId, body.refreshToken);
   }
@@ -30,5 +30,10 @@ export class AuthController {
       );
     }
     return user;
+  }
+
+  @MessagePattern({ cmd: 'logout' })
+  logout(@Payload() data: { userId: string }) {
+    return this.authService.logout(data.userId);
   }
 }

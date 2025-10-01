@@ -1,8 +1,20 @@
-import { Body, Controller, Get, Inject, Logger, Post } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Logger,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { LoginDTO } from './dto/login.dto';
 import { isPublic } from './decorators/is-public.decorator';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -31,5 +43,19 @@ export class AuthController {
   login(@Body() loginDto: LoginDTO) {
     this.logger.log('Login User requested from api gateway');
     return this.authClient.send({ cmd: 'auth_login' }, loginDto);
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh')
+  refreshTokens(@Req() req) {
+    const user = req.user;
+
+    const userId = user.sub;
+    const refreshToken = req.user.refreshToken;
+
+    return this.authClient.send(
+      { cmd: 'refresh_tokens' },
+      { userId, refreshToken },
+    );
   }
 }

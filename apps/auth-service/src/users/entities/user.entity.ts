@@ -15,5 +15,5 @@ export class User {
   username: string;
 
   @Column({ nullable: true })
-  refreshToken: string;
+  refreshToken?: string;
 }

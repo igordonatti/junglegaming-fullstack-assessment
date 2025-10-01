@@ -7,6 +7,7 @@ import { LoginValidationMiddleware } from './middleware/login-validation.middlew
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [JwtStrategy, LocalStrategy],
+  providers: [JwtStrategy, LocalStrategy, RefreshTokenStrategy],
   exports: [JwtModule],
 })
 export class AuthModule {

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
@@ -25,17 +23,29 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  login(user: User): UserTokenDTO {
+  async login(user: User): Promise<UserTokenDTO> {
     const payload: UserPayload = {
       sub: user.id,
       email: user.email,
     };
 
-    const jwtToken = this.jwtService.sign(payload);
+    const [access_token, refreshToken] = await Promise.all([
+      // Access Token de curta duração
+      this.jwtService.signAsync(payload, {
+        secret: process.env.AT_SECRET,
+        expiresIn: '15m',
+      }),
+      // Refresh Token de longa duração
+      this.jwtService.signAsync(payload, {
+        secret: process.env.RT_SECRET,
+        expiresIn: '7d',
+      }),
+    ]);
 
-    return {
-      access_token: jwtToken,
-    };
+    await this.updateRefreshTokenHash(user.id, refreshToken);
+
+    // Retorna os dois tokens
+    return { access_token, refreshToken };
   }
 
   async validateUser({ email, password }: LoginRequestDTO) {
@@ -81,5 +91,10 @@ export class AuthService {
 
     // Gera novos tokens e atualiza o hash no banco
     return this.login(user as User);
+  }
+
+  async logout(userId: string) {
+    // Invalida o token ao setar o hash como nulo
+    return this.usersService.logout(userId);
   }
 }

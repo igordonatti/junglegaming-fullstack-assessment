@@ -14,7 +14,6 @@ import { plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RpcException } from '@nestjs/microservices';
-import { validate as validateUuid } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -60,11 +59,6 @@ export class UsersService {
 
   async findById(id: string): Promise<ResponseUserDTO> {
     try {
-      const isValidId = validateUuid(id);
-      if (!isValidId) {
-        throw new RpcException(new ForbiddenException('ID inválido'));
-      }
-
       const user = await this.userRepository.findOne({ where: { id } });
 
       if (!user) {
@@ -76,6 +70,30 @@ export class UsersService {
       return plainToInstance(ResponseUserDTO, user, {
         excludeExtraneousValues: true,
       });
+    } catch (err) {
+      if (err instanceof RpcException) throw err;
+      this.logger.error(err.message, err.stack);
+      throw new InternalServerErrorException(
+        'Algo deu errado, tente novamente!',
+      );
+    }
+  }
+
+  async logout(id: string) {
+    try {
+      const user = await this.userRepository.findOne({ where: { id } });
+
+      if (!user) {
+        throw new RpcException(
+          new ForbiddenException('Usuário não encontrado'),
+        );
+      }
+
+      const result = await this.userRepository.update(id, {
+        refreshToken: undefined,
+      });
+
+      return result;
     } catch (err) {
       if (err instanceof RpcException) throw err;
       this.logger.error(err.message, err.stack);
