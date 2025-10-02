@@ -10,20 +10,20 @@ export class CommentsController {
 
   @MessagePattern({ cmd: 'create_comment' })
   async createComment(
-    @Payload() payload: { createComment: CreateCommentDTO; userId: string },
+    @Payload() payload: { createCommentDto: CreateCommentDTO; userId: string },
   ) {
+    console.log('controller', payload);
+
     return await this.commentsService.createComment(
-      payload.createComment,
+      payload.createCommentDto,
       payload.userId,
     );
   }
 
   @MessagePattern({ cmd: 'all_comments_for_task' })
-  async getAllComments(
+  async getAllCommentsForTask(
     @Payload() payload: { taskId: string; paginationQuery: PaginationQueryDTO },
   ) {
-    console.log(payload);
-
     return await this.commentsService.findAllForTask(payload.taskId, {
       page: payload.paginationQuery.page || 1,
       limit: payload.paginationQuery.limit || 10,

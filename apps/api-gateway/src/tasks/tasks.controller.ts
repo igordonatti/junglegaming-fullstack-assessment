@@ -82,10 +82,10 @@ export class TasksController {
     @Req() req,
   ) {
     const user = req.user;
+    createCommentDto.taskId = taskId;
 
     const payload = {
       createCommentDto,
-      taskId,
       userId: user.id,
     };
 
