@@ -25,7 +25,9 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@repo/types": ["../../packages/types/index.ts"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
   "include": ["src"]

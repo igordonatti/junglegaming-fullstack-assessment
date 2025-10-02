@@ -24,13 +24,16 @@ export function TaskForm({ initial, onSubmit }: { initial?: Partial<Task>; onSub
   })
 
   return (
-    <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="space-y-3 flex flex-col gap-3" onSubmit={form.handleSubmit(onSubmit)}>
       <Input placeholder="Título" {...form.register('title')} />
       <Input placeholder="Descrição" {...form.register('description')} />
-      <select className="h-9 rounded-md border px-3 text-sm" {...form.register('priority')}>
-        {['LOW','MEDIUM','HIGH','URGENT'].map((p)=> (<option key={p} value={p}>{p}</option>))}
-      </select>
-      <Button type="submit">Salvar</Button>
+      <div className="flex items-center gap-2 justify-between">
+        <select className="h-9 rounded-md border px-3 text-sm" {...form.register('priority')}>
+          {['LOW','MEDIUM','HIGH','URGENT'].map((p)=> (<option key={p} value={p}>{p}</option>))}
+        </select>
+        <Button type="submit">Salvar</Button>
+      </div>
+      
     </form>
   )
 }

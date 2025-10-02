@@ -54,7 +54,7 @@ export class AuthService {
       }),
     ]);
 
-    await this.updateRefreshTokenHash(user.id, refreshToken);
+    await this.usersService.updateRefreshTokenHash(user.id, refreshToken);
 
     return { access_token, refreshToken };
   }
@@ -87,11 +87,6 @@ export class AuthService {
       throw new HttpException('Invalid token.', HttpStatus.UNAUTHORIZED);
 
     return decoded;
-  }
-
-  async updateRefreshTokenHash(userId: string, refreshToken: string) {
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await this.usersService.updateRefreshTokenHash(userId, hashedRefreshToken);
   }
 
   async refreshTokens(userId: string, rt: string) {

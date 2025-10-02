@@ -2,23 +2,23 @@ import { create } from "zustand";
 import { getTokens, setTokens, clearTokens } from "../lib/auth-helpers";
 
 type AuthState = {
-  accessToken: string | null;
+  access_token: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (tokens: { accessToken: string; refreshToken: string }) => void;
+  setAuth: (tokens: { access_token: string; refreshToken: string }) => void;
   clearAuth: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: getTokens().accessToken,
+  access_token: getTokens().access_token,
   refreshToken: getTokens().refreshToken,
-  isAuthenticated: Boolean(getTokens().accessToken),
-  setAuth: ({ accessToken, refreshToken }) => {
-    setTokens({ accessToken, refreshToken });
-    set({ accessToken, refreshToken, isAuthenticated: true });
+  isAuthenticated: Boolean(getTokens().access_token),
+  setAuth: ({ access_token, refreshToken }) => {
+    setTokens({ access_token, refreshToken });
+    set({ access_token, refreshToken, isAuthenticated: true });
   },
   clearAuth: () => {
     clearTokens();
-    set({ accessToken: null, refreshToken: null, isAuthenticated: false });
+    set({ access_token: null, refreshToken: null, isAuthenticated: false });
   },
 }));

@@ -36,6 +36,7 @@ export const rootRoute = createRootRoute({
         socket.off('comment:new', onCommentNew)
       }
     }, [addNotif, toast])
+    
     return (
       <div className="min-h-screen">
         <header className="border-b bg-white">

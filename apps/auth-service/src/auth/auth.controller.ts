@@ -17,13 +17,12 @@ export class AuthController {
 
   @MessagePattern({ cmd: 'refresh_tokens' })
   async refreshTokens(@Payload() body: RefreshTokensDTO) {
+    console.log('Refreshing tokens:', body);
     return await this.authService.refreshTokens(body.userId, body.refreshToken);
   }
 
   @MessagePattern({ cmd: 'auth_validate_user' })
   async validateUser(@Payload() body: LoginRequestDTO) {
-    console.log('Validando usuário:', body);
-
     const user = await this.authService.validateUser(body);
     if (!user) {
       // É importante jogar uma exceção que o gateway entenda

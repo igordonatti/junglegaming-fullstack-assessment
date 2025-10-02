@@ -9,7 +9,7 @@ export type RegisterPayload = {
 
 export async function login(payload: LoginPayload) {
   const { data } = await axiosInstance.post("/auth/login", payload);
-  return data as { accessToken: string; refreshToken: string };
+  return data as { access_token: string; refreshToken: string };
 }
 
 export async function register(payload: RegisterPayload) {
@@ -19,7 +19,7 @@ export async function register(payload: RegisterPayload) {
 
 export async function refreshToken(body: { refreshToken: string }) {
   const { data } = await axiosInstance.post("/auth/refresh", body);
-  return data as { accessToken: string; refreshToken: string };
+  return data as { access_token: string; refreshToken: string };
 }
 
 export async function logout() {

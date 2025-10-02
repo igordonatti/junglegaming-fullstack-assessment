@@ -56,8 +56,6 @@ export class AuthController {
     const userId = user.sub;
     const refreshToken = req.user.refreshToken;
 
-    console.log('VOU LA PRO AUTH SERVICE');
-
     return this.authClient.send(
       { cmd: 'refresh_tokens' },
       { userId, refreshToken },

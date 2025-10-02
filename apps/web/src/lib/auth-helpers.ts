@@ -1,4 +1,4 @@
-type TokenBundle = { accessToken: string | null; refreshToken: string | null };
+type TokenBundle = { access_token: string | null; refreshToken: string | null };
 
 const ACCESS_KEY = "jg_access_token";
 const REFRESH_KEY = "jg_refresh_token";
@@ -7,19 +7,20 @@ let refreshingPromise: Promise<unknown> | null = null;
 
 export function getTokens(): TokenBundle {
   if (typeof localStorage === "undefined")
-    return { accessToken: null, refreshToken: null };
+    return { access_token: null, refreshToken: null };
   return {
-    accessToken: localStorage.getItem(ACCESS_KEY),
+    access_token: localStorage.getItem(ACCESS_KEY),
     refreshToken: localStorage.getItem(REFRESH_KEY),
   };
 }
 
 export function setTokens(tokens: {
-  accessToken: string;
+  access_token: string;
   refreshToken: string;
 }) {
   if (typeof localStorage === "undefined") return;
-  localStorage.setItem(ACCESS_KEY, tokens.accessToken);
+  console.log("SET TOKENS", tokens.access_token);
+  localStorage.setItem(ACCESS_KEY, tokens.access_token);
   localStorage.setItem(REFRESH_KEY, tokens.refreshToken);
 }
 

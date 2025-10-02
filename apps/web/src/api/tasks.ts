@@ -35,7 +35,7 @@ export async function updateTask(id: string, payload: UpdateTaskPayload) {
 }
 
 export async function deleteTask(id: string) {
-  const { data } = await axiosInstance.delete(`/tasks/${id}`);
+  const { data } = await axiosInstance.delete(`/tasks?taskId=${id}`);
   return data as { success: boolean };
 }
 
