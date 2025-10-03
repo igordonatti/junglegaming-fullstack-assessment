@@ -51,6 +51,15 @@ export class TasksController {
     return this.tasksClient.send({ cmd: 'get_tasks' }, paginationDto);
   }
 
+  @Get(':taskId')
+  getTask(@Param('taskId', ParseUUIDPipe) taskId: string) {
+    const payload = {
+      taskId,
+    };
+
+    return this.tasksClient.send({ cmd: 'get_task_by_id' }, payload);
+  }
+
   @Delete()
   deleteTask(@Query() deleteTaskDto: DeleteTaskDTO, @Req() req) {
     const user = req.user;
@@ -63,9 +72,15 @@ export class TasksController {
     return this.tasksClient.send({ cmd: 'delete_task' }, payload);
   }
 
-  @Put()
-  updateTask(@Body() updateTaskDto: UpdateTaskDTO, @Req() req) {
+  @Put(':taskId')
+  updateTask(
+    @Body() updateTaskDto: UpdateTaskDTO,
+    @Param('taskId', ParseUUIDPipe) taskId: string,
+    @Req() req,
+  ) {
     const user = req.user;
+
+    updateTaskDto.taskId = taskId;
 
     const payload = {
       updateTaskDto,

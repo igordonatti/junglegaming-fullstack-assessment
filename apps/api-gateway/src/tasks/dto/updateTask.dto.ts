@@ -1,8 +1,7 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateTaskDTO {
-  @IsString()
-  @IsNotEmpty()
+  @IsEmpty()
   taskId: string;
 
   @IsString()

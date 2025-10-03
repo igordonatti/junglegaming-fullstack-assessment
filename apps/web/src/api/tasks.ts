@@ -6,7 +6,7 @@ import type {
   UpdateTaskPayload,
   CreateCommentPayload,
   PaginatedResponse,
-} from "@repo/types";
+} from "../../../../packages/types/index";
 
 export async function getTasks(params: {
   page?: number;
@@ -30,7 +30,7 @@ export async function createTask(payload: CreateTaskPayload) {
 }
 
 export async function updateTask(id: string, payload: UpdateTaskPayload) {
-  const { data } = await axiosInstance.put(`/tasks/${id}`, payload);
+  const { data } = await axiosInstance.put(`/tasks?taskId=${id}`, payload);
   return data as Task;
 }
 

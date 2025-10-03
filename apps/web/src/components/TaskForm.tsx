@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
-import type { TaskPriority, Task } from '@repo/types'
+import type { TaskPriority, Task } from '../../../../packages/types/index'
+import { taskPriorities } from '@/types/task-status'
 
 const schema = z.object({
   title: z.string().min(1),
@@ -29,7 +30,7 @@ export function TaskForm({ initial, onSubmit }: { initial?: Partial<Task>; onSub
       <Input placeholder="Descrição" {...form.register('description')} />
       <div className="flex items-center gap-2 justify-between">
         <select className="h-9 rounded-md border px-3 text-sm" {...form.register('priority')}>
-          {['LOW','MEDIUM','HIGH','URGENT'].map((p)=> (<option key={p} value={p}>{p}</option>))}
+          {taskPriorities.map((p)=> (<option key={p.value} value={p.value}>{p.label}</option>))}
         </select>
         <Button type="submit">Salvar</Button>
       </div>

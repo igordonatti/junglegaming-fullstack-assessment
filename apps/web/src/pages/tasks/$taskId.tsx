@@ -15,23 +15,29 @@ export default function TaskDetailPage() {
   if (isError || !data) return <div className="text-red-600">Erro ao carregar tarefa</div>
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">{data.title}</h2>
-          <p className="text-sm text-muted-foreground">{data.description}</p>
-          <div className="text-xs">Status: {data.status} • Prioridade: {data.priority}</div>
+    <div className="space-y-4 p-4 max-w-screen-lg mx-auto">
+      <div className="flex flex-col items-start justify-between bg-amber-700 w-ful rounded-lg py-4">
+        <div className='flex items-center justify-between w-full p-4'>
+          <h2 className="text-xl font-semibold text-white">{data.title}</h2>
+          <p className="text-sm text-white">{data.description}</p>
+          <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline">Editar</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <h3 className="text-lg font-medium mb-3">Editar tarefa</h3>
+                <TaskForm initial={data} onSubmit={(values) => updateTask.mutate(values)} />
+              </DialogContent>
+            </Dialog>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">Editar</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <h3 className="text-lg font-medium mb-3">Editar tarefa</h3>
-            <TaskForm initial={data} onSubmit={(values) => updateTask.mutate(values)} />
-          </DialogContent>
-        </Dialog>
+       
+
+        <div className="flex items-center gap-2 bg-amber-500 w-full p-2">
+          <div className="text-sm  font-semibold">Status: {data.status} • Prioridade: {data.priority}</div>
+        </div>
       </div>
+
+      
 
       <section>
         <h3 className="mb-2 font-medium">Comentários</h3>

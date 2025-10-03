@@ -14,7 +14,6 @@ export enum TaskPriority {
 }
 
 export interface User {
-  // Campos essenciais para o frontend
   id: string;
   username: string;
   email: string;
