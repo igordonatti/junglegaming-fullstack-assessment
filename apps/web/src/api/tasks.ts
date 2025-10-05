@@ -6,6 +6,7 @@ import type {
   UpdateTaskPayload,
   CreateCommentPayload,
   PaginatedResponse,
+  User,
 } from "../../../../packages/types/index";
 
 export async function getTasks(params: {
@@ -30,6 +31,7 @@ export async function createTask(payload: CreateTaskPayload) {
 }
 
 export async function updateTask(id: string, payload: UpdateTaskPayload) {
+  console.log("updateTask", id, payload);
   const { data } = await axiosInstance.put(`/tasks?taskId=${id}`, payload);
   return data as Task;
 }
@@ -58,4 +60,16 @@ export async function getComments(
     params,
   });
   return data as PaginatedResponse<Comment>;
+}
+
+// USERS
+export async function getUsers(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) {
+  const { data } = await axiosInstance.get(`/auth/users`, { params });
+  if (Array.isArray(data)) return data as User[];
+  if (data && Array.isArray(data.items)) return data.items as User[];
+  return [] as User[];
 }

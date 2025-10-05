@@ -5,6 +5,7 @@ import {
   createTask,
   updateTask,
   deleteTask,
+  getUsers,
 } from "../api/tasks";
 
 export function useTasksListQuery(params: {
@@ -55,5 +56,17 @@ export function useDeleteTaskMutation() {
   return useMutation({
     mutationFn: deleteTask,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["tasks"] }),
+  });
+}
+
+export function useUsersQuery(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) {
+  return useQuery({
+    queryKey: ["users", params],
+    queryFn: () => getUsers(params),
+    staleTime: 1000 * 60, // 1 minute
   });
 }

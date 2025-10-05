@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -12,7 +10,7 @@ import {
 import { Task } from './entities/task.entity';
 import { DataSource, Repository } from 'typeorm';
 import CreaeteTaskDTO from './dto/createTask.dto';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { UpdateTaskDTO } from './dto/updateTask.dto';
 import {
   IPaginationOptions,
@@ -25,19 +23,25 @@ export class TasksService {
   private logger = new Logger();
   private readonly taskRepository: Repository<Task>;
 
-  constructor(private readonly dataSource: DataSource) {
+  constructor(
+    @Inject('NOTIFICATIONS_SERVICE')
+    private readonly notificationsClient: ClientProxy,
+    private readonly dataSource: DataSource,
+  ) {
     this.taskRepository = this.dataSource.getRepository(Task);
   }
 
   async createTask(taskDTO: CreaeteTaskDTO, userId: string) {
-    console.log('service', taskDTO, userId);
-
     try {
       const task = this.taskRepository.create({
         ...taskDTO,
         creatorId: userId,
       });
-      return await this.taskRepository.save(task);
+      const savedTask = await this.taskRepository.save(task);
+
+      this.notificationsClient.emit('task_created', savedTask);
+
+      return savedTask;
     } catch (err) {
       this.logger.error(err.message);
       throw new RpcException(

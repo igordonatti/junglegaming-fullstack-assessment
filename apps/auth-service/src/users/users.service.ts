@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { ResponseUserDTO } from './dto/responseUser.dto';
@@ -45,6 +45,12 @@ export class UsersService {
     }
   }
 
+  async findAllUsers(): Promise<User[]> {
+    return await this.userRepository.find({
+      select: ['id', 'email', 'username'],
+    });
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     try {
       const user = await this.userRepository.findOne({ where: { email } });
@@ -73,6 +79,29 @@ export class UsersService {
     } catch (err) {
       if (err instanceof RpcException) throw err;
       this.logger.error(err.message, err.stack);
+      throw new InternalServerErrorException(
+        'Algo deu errado, tente novamente!',
+      );
+    }
+  }
+
+  async findUsersByIds(
+    userIds: string[],
+  ): Promise<Omit<User, 'password' | 'hashedRefreshToken'>[]> {
+    console.log('service', userIds);
+
+    try {
+      if (!userIds || userIds.length === 0) {
+        return [];
+      }
+      return this.userRepository.find({
+        where: {
+          id: In(userIds),
+        },
+        select: ['id', 'username', 'email'],
+      });
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
       throw new InternalServerErrorException(
         'Algo deu errado, tente novamente!',
       );

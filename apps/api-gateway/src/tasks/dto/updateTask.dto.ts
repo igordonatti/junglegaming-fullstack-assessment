@@ -1,4 +1,11 @@
-import { IsArray, IsEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEmpty,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { PRIORITY, TASK_STATUS } from './createTask.dto';
 
 export class UpdateTaskDTO {
   @IsEmpty()
@@ -10,5 +17,13 @@ export class UpdateTaskDTO {
 
   @IsArray()
   @IsOptional()
-  assignedTo: string[];
+  assigneeIds: string[];
+
+  @IsEnum(TASK_STATUS)
+  @IsOptional()
+  status: TASK_STATUS;
+
+  @IsEnum(PRIORITY)
+  @IsOptional()
+  priority: PRIORITY;
 }

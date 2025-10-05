@@ -70,4 +70,9 @@ export class AuthController {
 
     return this.authClient.send({ cmd: 'logout' }, { userId });
   }
+
+  @Get('users')
+  findAllUsers() {
+    return this.authClient.send({ cmd: 'find_all_users' }, {});
+  }
 }

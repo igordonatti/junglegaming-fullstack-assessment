@@ -19,11 +19,14 @@ import { DeleteTaskDTO } from './dto/deleteTask.dto';
 import { UpdateTaskDTO } from './dto/updateTask.dto';
 import { CreateCommentDTO } from './dto/createComment.dto';
 import { PaginationQueryDTO } from 'src/common/dto/pagination-query.dto';
+import { firstValueFrom } from 'rxjs';
+import { ResponseTaskDTO } from './dto/responseTask.dto';
 
 @Controller('tasks')
 export class TasksController {
   constructor(
     @Inject('TASKS_SERVICE') private readonly tasksClient: ClientProxy,
+    @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
   ) {}
 
   @Get('health')
@@ -34,6 +37,8 @@ export class TasksController {
 
   @Post()
   createTask(@Body() createTaskDto: CreateTaskDTO, @Req() req) {
+    console.log('createTaskDto', createTaskDto);
+
     const user = req.user;
 
     const payload = {
@@ -52,12 +57,29 @@ export class TasksController {
   }
 
   @Get(':taskId')
-  getTask(@Param('taskId', ParseUUIDPipe) taskId: string) {
+  async getTask(@Param('taskId', ParseUUIDPipe) taskId: string) {
     const payload = {
       taskId,
     };
 
-    return this.tasksClient.send({ cmd: 'get_task_by_id' }, payload);
+    const task: ResponseTaskDTO = await firstValueFrom(
+      this.tasksClient.send({ cmd: 'get_task_by_id' }, payload),
+    );
+
+    console.log('task', task);
+
+    if (task && task.assigneeIds && task.assigneeIds.length > 0) {
+      const assignees = await firstValueFrom(
+        this.usersClient.send(
+          { cmd: 'get_users_by_ids' },
+          { userIds: task.assigneeIds },
+        ),
+      );
+
+      task.assigneeIds = assignees;
+    }
+
+    return task;
   }
 
   @Delete()
@@ -72,12 +94,14 @@ export class TasksController {
     return this.tasksClient.send({ cmd: 'delete_task' }, payload);
   }
 
-  @Put(':taskId')
+  @Put()
   updateTask(
     @Body() updateTaskDto: UpdateTaskDTO,
-    @Param('taskId', ParseUUIDPipe) taskId: string,
+    @Query('taskId', ParseUUIDPipe) taskId: string,
     @Req() req,
   ) {
+    console.log('taskId', taskId);
+    console.log('updateTaskDto', updateTaskDto);
     const user = req.user;
 
     updateTaskDto.taskId = taskId;

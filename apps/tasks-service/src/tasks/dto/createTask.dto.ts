@@ -1,4 +1,10 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { PRIORITY, TASK_STATUS } from '../entities/task.entity';
 
 export default class CreateTaskDTO {
@@ -17,4 +23,8 @@ export default class CreateTaskDTO {
   @IsEnum(PRIORITY)
   @IsOptional()
   priority?: PRIORITY;
+
+  @IsOptional()
+  @IsArray()
+  assigneeIds?: string[];
 }

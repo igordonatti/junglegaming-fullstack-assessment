@@ -27,7 +27,9 @@ export interface Task {
   priority: TaskPriority;
   dueDate: string | null; // Use string para datas e formate no frontend
   creatorId: string; // ID do criador
-  assigneeIds: string[]; // Lista de IDs de usuários atribuídos
+  assigneeIds: User[]; // Lista de IDs de usuários atribuídos
+  // Lista de usuários atribuídos retornados pelo backend em detalhes da tarefa
+  // Este campo é opcional porque nem todas as rotas retornam os dados populados
   createdAt: string;
   updatedAt: string;
 }

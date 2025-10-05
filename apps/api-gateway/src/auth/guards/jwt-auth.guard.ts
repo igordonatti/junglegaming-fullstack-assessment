@@ -26,8 +26,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     const canActivate = await super.canActivate(context);
 
-    console.log('canActivate', canActivate);
-
     if (typeof canActivate === 'boolean') {
       return canActivate;
     }

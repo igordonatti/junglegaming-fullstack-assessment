@@ -12,8 +12,6 @@ export class CommentsController {
   async createComment(
     @Payload() payload: { createCommentDto: CreateCommentDTO; userId: string },
   ) {
-    console.log('controller', payload);
-
     return await this.commentsService.createComment(
       payload.createCommentDto,
       payload.userId,

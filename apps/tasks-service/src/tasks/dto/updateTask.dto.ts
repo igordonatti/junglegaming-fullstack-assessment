@@ -1,4 +1,5 @@
 import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { PRIORITY, TASK_STATUS } from '../entities/task.entity';
 
 export class UpdateTaskDTO {
   @IsString()
@@ -11,5 +12,13 @@ export class UpdateTaskDTO {
 
   @IsArray()
   @IsOptional()
-  assignedTo: string[];
+  assigneeIds: string[];
+
+  @IsString()
+  @IsOptional()
+  status: TASK_STATUS;
+
+  @IsString()
+  @IsOptional()
+  priority: PRIORITY;
 }
