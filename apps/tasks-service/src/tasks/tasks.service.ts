@@ -64,8 +64,9 @@ export class TasksService {
           new ForbiddenException('Você não é autorizado a editar esta task.'),
         );
 
-      Object.assign(task, updateTaskDto);
-      return this.taskRepository.save(task);
+      const updatedTask = Object.assign(task, updateTaskDto);
+      this.notificationsClient.emit('task_updated', updatedTask);
+      return this.taskRepository.save(updatedTask);
     } catch (err) {
       this.logger.error(err.message);
       throw new RpcException(
