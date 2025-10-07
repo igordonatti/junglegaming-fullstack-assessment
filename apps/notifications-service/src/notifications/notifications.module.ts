@@ -6,7 +6,7 @@ import { NotificationsController } from './notifications.controller';
 const apiGatewayHost =
   process.env.API_GATEWAY_HOST ||
   (process.env.NODE_ENV === 'production' ? 'api-gateway' : 'localhost');
-const apiGatewayPort = Number(process.env.API_GATEWAY_PORT ?? 3000);
+const apiGatewayPort = Number(process.env.API_GATEWAY_PORT ?? 3001);
 
 @Module({
   imports: [

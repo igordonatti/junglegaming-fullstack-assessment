@@ -1,15 +1,19 @@
-import { Body, Controller } from '@nestjs/common';
+import { Body, Controller, Inject } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { ClientProxy, EventPattern, Payload } from '@nestjs/microservices';
 import { Task } from 'src/tasks/entities/task.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    @Inject('API_GATEWAY_SERVICE')
+    private readonly apiGatewayClient: ClientProxy,
+  ) {}
 
   @EventPattern('task_created')
-  handleTaskCreated(
+  async handleTaskCreated(
     @Payload()
     payload: {
       task: Task;
@@ -27,9 +31,14 @@ export class NotificationsController {
       recipientId: user.id,
     };
 
-    const notification =
-      this.notificationsService.createNotification(notificationData);
+    const savedNotification =
+      await this.notificationsService.createNotification(notificationData);
 
-    return notification;
+    if (savedNotification) {
+      this.apiGatewayClient.emit('notification_created', {
+        notification: savedNotification,
+        user: user.id,
+      });
+    }
   }
 }
