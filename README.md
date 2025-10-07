@@ -1,135 +1,125 @@
-# Turborepo starter
 
-This Turborepo starter is maintained by the Turborepo core team.
 
-## Using this example
+# Igor - README
+Este projeto foi desenvolvido para um teste técnico do processo seletivo da empresa JungleGaming. Irei colocar abaixo as explicações para o projeto, mas se quiser ir direto ao ponto de configuração para rodar, basta descer até #turborepo-starter. Para fins de entrega, se você ta lendo isso, acredito que seja o recrutador. Eu não consegui finalizar a notificação no frontend e não consegui configurar o docker-compose file a tempo de entregar, procurarei finalizar para o projeto ficar redondo, mas para a entrega não consegui. O projeto esta funcionando com todos os requisitos (Rabbit, microservice, api gateway, etc). Se não rodar em docker-compose, o turbo repo dev funcionará, acredito eu.
 
-Run the following command:
+# Desafio Full-stack Júnior — Sistema de Gestão de Tarefas Colaborativo
 
-```sh
-npx create-turbo@latest
+Esta é a implementação do desafio prático para a vaga de Full-stack Developer Júnior na Jungle Gaming. O projeto consiste em um Sistema de Gestão de Tarefas Colaborativo construído sobre uma arquitetura de microsserviços, com comunicação em tempo real e orquestrado com Docker.
+
+## 1. Arquitetura
+
+O sistema foi projetado seguindo o padrão de microsserviços, com um API Gateway centralizando a comunicação com o cliente. A comunicação interna entre os serviços utiliza dois padrões: síncrono (TCP) para comandos diretos e assíncrono (AMQP com RabbitMQ) para eventos.
+
+```text
++------------------+      HTTP/S & WebSocket      +---------------------+
+|                  | <--------------------------> |                     |
+|  Cliente (React) |                              |     API Gateway     |
+|   (apps/web)     |                              | (apps/api-gateway)  |
+|                  |                              | (Portaria/Segurança)|
++------------------+                              +----------+----------+
+                                                               |    ^
+                               (TCP: Comandos Síncronos)       |    | (TCP: Comando Interno p/ WS)
+                                                               v    |
+                                       +-----------------------+    +----------------------+
+                                       |                                                  |
+ +--------------------------+          |                       +------------------+         |
+ |                          |          |                       |                  |         |
+ |  Auth Service (Cartório) | <--------+----------------------> |   Tasks Service  |         |
+ |   (apps/auth-service)    |                                  | (apps/tasks-svc) |         |
+ |                          |                                  +--------+---------+         |
+ +--------------------------+                                           |                   |
+                                                                        | (AMQP: Eventos)   |
+                                                                        v                   |
+                                                              +------------------+          |
+                                                              |                  |          |
+                                                              |     RabbitMQ     |          |
+                                                              |    (Correios)    |          |
+                                                              +--------+---------+          |
+                                                                       |                    |
+                                                                       | (AMQP: Consome)    |
+                                                                       v                    |
+                                                              +---------------------------+ |
+                                                              |                           | |
+                                                              |  Notifications Service    | |
+                                                              | (apps/notifications-svc)  | |
+                                                              |                           | |
+                                                              +---------------------------+ |
+                                                                ^                           |
+                                                                |                           |
+                                                                +---------------------------+
+```
+- **Fluxo de Requisição:** O cliente (React) interage exclusivamente com o **API Gateway**. O Gateway atua como a "portaria", validando tokens JWT e roteando as requisições para os serviços internos apropriados (`auth-service`, `tasks-service`) via TCP.
+- **Fluxo de Eventos:** Quando uma ação que requer notificação ocorre (ex: criação de tarefa), o `tasks-service` publica um evento no **RabbitMQ**. O `notifications-service` consome este evento, persiste a notificação em seu banco de dados e, em seguida, emite um comando interno (via TCP) para o `api-gateway`.
+- **Fluxo de Notificação:** O `api-gateway` recebe o comando interno e, através do seu **WebSocket Gateway**, envia a notificação em tempo real para o cliente específico.
+
+## 2. Decisões Técnicas e Trade-offs
+
+-   **Arquitetura de Microsserviços com API Gateway:**
+    -   **Decisão:** Separar as responsabilidades em serviços independentes (`Auth`, `Tasks`, `Notifications`) para promover escalabilidade, resiliência e manutenibilidade. O API Gateway centraliza o acesso, atuando como um *façade* para a complexidade interna.
+    -   **Trade-off:** Aumento da complexidade de desenvolvimento e comunicação entre serviços em comparação com uma arquitetura monolítica. A comunicação em rede introduz latência e requer mecanismos de resiliência.
+
+-   **Comunicação Híbrida (TCP Síncrono e AMQP Assíncrono):**
+    -   **Decisão:** Utilizar TCP (`ClientProxy` do NestJS) para requisições diretas de comando-resposta (ex: Gateway → Auth para validar um login), onde uma resposta imediata é necessária. Utilizar RabbitMQ (AMQP) para eventos (ex: `task_created`), onde o desacoplamento e a garantia de entrega são mais importantes que a instantaneidade.
+    -   **Trade-off:** Gerenciar dois protocolos de comunicação interna adiciona uma leve complexidade de configuração, mas otimiza a arquitetura para os diferentes tipos de interação.
+
+-   **Autenticação Centralizada na Borda (API Gateway):**
+    -   **Decisão:** A validação de `accessToken` (`JwtStrategy`) e a lógica de `Guards` residem exclusivamente no API Gateway. Os serviços internos recebem apenas a identidade já validada (ex: `userId`), confiando no Gateway.
+    -   **Trade-off:** O Gateway se torna um componente crítico para a segurança. Isso simplifica e protege enormemente os serviços internos, que não precisam ter acesso aos segredos de assinatura de token.
+
+-   **Orquestração de Dados no API Gateway:**
+    -   **Decisão:** Para endpoints que necessitam de dados de múltiplos serviços (ex: buscar detalhes de uma tarefa e, em seguida, buscar os dados dos usuários atribuídos), o API Gateway orquestra essas chamadas internas e agrega os resultados.
+    -   **Trade-off:** Adiciona lógica ao Gateway. Em cenários de alta complexidade, isso poderia ser um gargalo, mas para este escopo, simplifica drasticamente o código do frontend, que faz uma única chamada e recebe uma resposta completa.
+
+## 3. Problemas Conhecidos e Melhorias
+
+Dado o escopo e o prazo do desafio, alguns pontos foram implementados de forma funcional, mas poderiam ser refinados em um ambiente de produção contínuo:
+
+-   **Observabilidade e Logging:** Os logs atuais são baseados em `console.log` para fins de depuração. Uma melhoria seria implementar um sistema de logging estruturado (como **Winston** ou **Pino**) e centralizado, facilitando a busca e a análise de eventos em produção.
+
+-   **Refinamento de DTOs e Contratos:** As entidades e DTOs estão funcionais e os tipos principais são compartilhados via `@repo/types`. Para uma maior robustez, seria benéfico expandir este pacote para incluir também as classes DTO com validações, evitando qualquer duplicação entre o `api-gateway` e os serviços internos.
+
+-   **Experiência do Usuário (UI/UX) no Frontend:** A interface atual foca na entrega dos requisitos funcionais. Uma próxima etapa seria realizar um trabalho mais aprofundado de design e usabilidade, explorando layouts mais dinâmicos e melhorando a jornada do usuário.
+
+-   **Tratamento de Erros no Frontend:** A aplicação lida com erros de forma geral (ex: exibindo toasts). Uma melhoria seria um tratamento mais granular, fornecendo feedback mais específico ao usuário (ex: "O campo de e-mail é inválido" em vez de um genérico "Falha na requisição").
+
+-   **Cobertura de Testes:** O projeto não possui uma suíte de testes automatizados (unitários, integração, e2e). A adição de testes com **Jest** aumentaria a resiliência a refatorações e garantiria a qualidade contínua do código.
+
+-   **Otimização do Ambiente Docker:** O `docker-compose.yml` utilizado foi o sugerido, focado no ambiente de desenvolvimento com volumes para *hot-reloading*. Para produção, seria necessário criar um `docker-compose.prod.yml` e otimizar os Dockerfiles (com *multi-stage builds*) para gerar imagens menores e mais seguras.
+
+## 4. Tempo Gasto (Preencha com suas estimativas)
+
+| Etapa                                              | Tempo Estimado Gasto |
+| :------------------------------------------------- | :------------------- |
+| **Fase 1:** Estrutura, Ambiente e Docker           | `[Ex: 8 horas]`      |
+| **Fase 2:** Backend - Autenticação, CRUD, Relações | `[Ex: 20 horas]`     |
+| **Fase 3:** Backend - RabbitMQ e Notificações      | `[Ex: 12 horas]`     |
+| **Fase 4:** Frontend - UI e Integração com API     | `[Ex: 24 horas]`     |
+| **Fase 5:** Refatoração, Depuração e Documentação  | `[Ex: 8 horas]`      |
+| **Total** | `[Ex: 72 horas]`     |
+
+## 5. Instruções de Execução
+
+### Pré-requisitos
+-   Docker
+-   Docker Compose
+-   Node.js (v18+)
+-   NPM ou um gerenciador de pacotes compatível
+
+### Configuração
+1.  Clone este repositório.
+2.  Na raiz do projeto, instale as dependências:
+    ```bash
+    npm install
+    ```
+3.  O projeto utiliza variáveis de ambiente. Para cada serviço em `apps/` (ex: `apps/api-gateway`, `apps/auth-service`), renomeie o arquivo `.env.example` para `.env`.
+4.  Gere segredos fortes para as variáveis `AT_SECRET` e `RT_SECRET` nos arquivos `.env` do `api-gateway` e `auth-service`, conforme as necessidades de cada um.
+
+### Executando a Aplicação
+Para subir toda a stack (frontend, todos os microsserviços, banco de dados e RabbitMQ), execute o seguinte comando na raiz do projeto:
+
+```bash
+docker-compose up --build
 ```
 
-## What's inside?
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
