@@ -18,6 +18,8 @@ export class NotificationsGateway
   private connectedUsers = new Map<string, string>();
 
   handleConnection(client: Socket) {
+    console.log('handleConnection', client);
+
     const userId = client.handshake.query.userId as string;
     if (userId) {
       this.logger.log(`Cliente conectado: ${client.id} - UserId: ${userId}`);
@@ -26,6 +28,7 @@ export class NotificationsGateway
   }
 
   handleDisconnect(client: Socket) {
+    console.log('handleDisconnect', client);
     this.logger.log(`Client disconnected: ${client.id}`);
     // Remove o usuário do mapa ao desconectar
     for (const [userId, socketId] of this.connectedUsers.entries()) {
@@ -39,12 +42,7 @@ export class NotificationsGateway
   // Deixarei como any para não ter que importar a interface de notification
   // mas considero um erro, deveria ser importada a interface de varias tipos de notificações
   sendNotificationToUser(userId: string, notification: any) {
-    const socketId = this.connectedUsers.get(userId);
-    if (socketId) {
-      this.logger.log(
-        `Sending notification to UserID: ${userId} on SocketID: ${socketId}`,
-      );
-      this.server.to(socketId).emit('new_notification', notification);
-    }
+    console.log('sendNotificationToUser', userId, notification);
+    this.server.emit('new_notification', notification);
   }
 }

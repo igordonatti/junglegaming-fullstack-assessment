@@ -11,6 +11,7 @@ export type ServerToClientEvents = {
   "task:created"?: (payload: unknown) => void;
   "task:updated"?: (payload: unknown) => void;
   "comment:new"?: (payload: unknown) => void;
+  "notification:new"?: (payload: unknown) => void;
 };
 
 export type ClientToServerEvents = Record<string, never>;
