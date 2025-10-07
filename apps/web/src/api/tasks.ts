@@ -26,6 +26,7 @@ export async function getTask(id: string) {
 }
 
 export async function createTask(payload: CreateTaskPayload) {
+  console.log("createTask", payload);
   const { data } = await axiosInstance.post("/tasks", payload);
   return data as Task;
 }

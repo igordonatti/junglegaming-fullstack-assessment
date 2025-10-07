@@ -39,6 +39,7 @@ export class AuthService {
     const payload: UserPayload = {
       sub: user.id,
       email: user.email,
+      username: user.username,
     };
 
     const [access_token, refreshToken] = await Promise.all([

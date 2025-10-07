@@ -17,6 +17,7 @@ import {
   paginate,
   Pagination,
 } from 'nestjs-typeorm-paginate';
+import { UserDTO } from './dto/user.dto';
 
 @Injectable()
 export class TasksService {
@@ -31,15 +32,15 @@ export class TasksService {
     this.taskRepository = this.dataSource.getRepository(Task);
   }
 
-  async createTask(taskDTO: CreaeteTaskDTO, userId: string) {
+  async createTask(taskDTO: CreaeteTaskDTO, user: UserDTO) {
     try {
       const task = this.taskRepository.create({
         ...taskDTO,
-        creatorId: userId,
+        creatorId: user.id,
       });
       const savedTask = await this.taskRepository.save(task);
 
-      this.notificationsClient.emit('task_created', savedTask);
+      this.notificationsClient.emit('task_created', { task: savedTask, user });
 
       return savedTask;
     } catch (err) {
@@ -50,7 +51,7 @@ export class TasksService {
     }
   }
 
-  async updateTask(updateTaskDto: UpdateTaskDTO, userId: string) {
+  async updateTask(updateTaskDto: UpdateTaskDTO, user: UserDTO) {
     try {
       const task = await this.taskRepository.findOneBy({
         id: updateTaskDto.taskId,
@@ -59,13 +60,16 @@ export class TasksService {
       if (!task)
         throw new RpcException(new NotFoundException('Task não encontrada.'));
 
-      if (task.creatorId !== userId)
+      if (task.creatorId !== user.id)
         throw new RpcException(
           new ForbiddenException('Você não é autorizado a editar esta task.'),
         );
 
       const updatedTask = Object.assign(task, updateTaskDto);
-      this.notificationsClient.emit('task_updated', updatedTask);
+      this.notificationsClient.emit('task_updated', {
+        task: updatedTask,
+        user,
+      });
       return this.taskRepository.save(updatedTask);
     } catch (err) {
       this.logger.error(err.message);
@@ -75,14 +79,14 @@ export class TasksService {
     }
   }
 
-  async deleteTask(taskId: string, userId: string) {
+  async deleteTask(taskId: string, user: UserDTO) {
     try {
       const task = await this.taskRepository.findOneBy({ id: taskId });
 
       if (!task)
         throw new RpcException(new NotFoundException('Task não encontrada.'));
 
-      if (task.creatorId !== userId)
+      if (task.creatorId !== user.id)
         throw new RpcException(
           new ForbiddenException('Você não é autorizado a deletar esta task.'),
         );

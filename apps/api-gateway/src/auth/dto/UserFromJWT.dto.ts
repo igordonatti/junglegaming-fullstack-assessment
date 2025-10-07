@@ -1,4 +1,5 @@
 export interface UserFromJWTDTO {
   id: string;
   email: string;
+  username: string;
 }

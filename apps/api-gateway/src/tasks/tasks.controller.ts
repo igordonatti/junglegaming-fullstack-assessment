@@ -37,13 +37,13 @@ export class TasksController {
 
   @Post()
   createTask(@Body() createTaskDto: CreateTaskDTO, @Req() req) {
-    console.log('createTaskDto', createTaskDto);
-
     const user = req.user;
+
+    console.log('user', user);
 
     const payload = {
       createTaskDto,
-      userId: user.id,
+      user: user,
     };
 
     return this.tasksClient.send({ cmd: 'create_task' }, payload);
@@ -51,8 +51,6 @@ export class TasksController {
 
   @Get()
   getTasks(@Query() paginationDto: PaginationQueryDTO) {
-    console.log(paginationDto);
-
     return this.tasksClient.send({ cmd: 'get_tasks' }, paginationDto);
   }
 
@@ -65,8 +63,6 @@ export class TasksController {
     const task: ResponseTaskDTO = await firstValueFrom(
       this.tasksClient.send({ cmd: 'get_task_by_id' }, payload),
     );
-
-    console.log('task', task);
 
     if (task && task.assigneeIds && task.assigneeIds.length > 0) {
       const assignees = await firstValueFrom(
@@ -88,7 +84,7 @@ export class TasksController {
 
     const payload = {
       deleteTaskDto,
-      userId: user.id,
+      user: user,
     };
 
     return this.tasksClient.send({ cmd: 'delete_task' }, payload);
@@ -100,15 +96,13 @@ export class TasksController {
     @Query('taskId', ParseUUIDPipe) taskId: string,
     @Req() req,
   ) {
-    console.log('taskId', taskId);
-    console.log('updateTaskDto', updateTaskDto);
     const user = req.user;
 
     updateTaskDto.taskId = taskId;
 
     const payload = {
       updateTaskDto,
-      userId: user.id,
+      user: user,
     };
 
     return this.tasksClient.send({ cmd: 'update_task' }, payload);
@@ -125,7 +119,7 @@ export class TasksController {
 
     const payload = {
       createCommentDto,
-      userId: user.id,
+      user: user,
     };
 
     return this.tasksClient.send({ cmd: 'create_comment' }, payload);

@@ -5,6 +5,9 @@ import { useNotificationsStore } from '../contexts/notifications-store'
 import { ToastViewport, useToast } from '../components/ui/toast'
 import { useEffect } from 'react'
 import { getSocket } from '../lib/socket'
+import { Toaster } from '../components/ui/sonner'
+import { toast as sonnerToast } from 'sonner'
+import type { SocketNotification } from '../types/socket-events'
 
 export const rootRoute = createRootRoute({
   component: function RootComponent() {
@@ -15,6 +18,10 @@ export const rootRoute = createRootRoute({
 
     useEffect(() => {
       const socket = getSocket()
+      const onNewNotification = (payload: SocketNotification) => {
+        sonnerToast(payload.message)
+        addNotif(payload.message)
+      }
       const onTaskCreated = (_payload: unknown) => {
         toast({ title: 'Nova tarefa criada' })
         addNotif('Nova tarefa criada')
@@ -27,10 +34,12 @@ export const rootRoute = createRootRoute({
         toast({ title: 'Novo comentário' })
         addNotif('Novo comentário')
       }
+      socket.on('new_notification', onNewNotification)
       socket.on('task:created', onTaskCreated)
       socket.on('task:updated', onTaskUpdated)
       socket.on('comment:new', onCommentNew)
       return () => {
+        socket.off('new_notification', onNewNotification)
         socket.off('task:created', onTaskCreated)
         socket.off('task:updated', onTaskUpdated)
         socket.off('comment:new', onCommentNew)
@@ -61,6 +70,7 @@ export const rootRoute = createRootRoute({
           <Outlet />
         </main>
         <ToastViewport />
+        <Toaster position="top-right" richColors />
       </div>
     )
   },

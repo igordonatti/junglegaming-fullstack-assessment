@@ -5,6 +5,7 @@ import CreateTaskDTO from './dto/createTask.dto';
 import { UpdateTaskDTO } from './dto/updateTask.dto';
 import { PaginationQueryDTO } from 'src/common/dto/pagination-query.dto';
 import { DeleteTaskDTO } from './dto/deleteTask.dto';
+import { UserDTO } from './dto/user.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -12,31 +13,31 @@ export class TasksController {
 
   @MessagePattern({ cmd: 'create_task' })
   async createTask(
-    @Payload() payload: { createTaskDto: CreateTaskDTO; userId: string },
+    @Payload() payload: { createTaskDto: CreateTaskDTO; user: UserDTO },
   ) {
     return await this.taskService.createTask(
       payload.createTaskDto,
-      payload.userId,
+      payload.user,
     );
   }
 
   @MessagePattern({ cmd: 'update_task' })
   async updateTask(
-    @Payload() payload: { updateTaskDto: UpdateTaskDTO; userId: string },
+    @Payload() payload: { updateTaskDto: UpdateTaskDTO; user: UserDTO },
   ) {
     return await this.taskService.updateTask(
       payload.updateTaskDto,
-      payload.userId,
+      payload.user,
     );
   }
 
   @MessagePattern({ cmd: 'delete_task' })
   async deleteTask(
-    @Payload() payload: { deleteTaskDto: DeleteTaskDTO; userId: string },
+    @Payload() payload: { deleteTaskDto: DeleteTaskDTO; user: UserDTO },
   ) {
     return await this.taskService.deleteTask(
       payload.deleteTaskDto.taskId,
-      payload.userId,
+      payload.user,
     );
   }
 

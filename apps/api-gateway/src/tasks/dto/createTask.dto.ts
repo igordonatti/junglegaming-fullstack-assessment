@@ -38,7 +38,7 @@ export default class CreateTaskDTO {
   priority?: PRIORITY;
 
   @IsOptional()
-  @IsString()
   @IsArray()
+  @IsString({ each: true })
   assigneeIds?: string[];
 }

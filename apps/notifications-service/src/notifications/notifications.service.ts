@@ -18,12 +18,19 @@ export class NotificationsService {
   }
 
   async createNotification(notification: CreateNotificationDto) {
+    console.log('notification', notification);
+
     try {
       const newNotification = this.notificationsRepository.create(notification);
       const notificationSaved =
         await this.notificationsRepository.save(newNotification);
 
-      this.apiGatewayClient.emit('notification_created', notificationSaved);
+      this.apiGatewayClient.emit('notification_created', {
+        notification: notificationSaved,
+        user: notification.recipientId,
+      });
+
+      console.log('notificationSaved', notificationSaved);
 
       return notificationSaved;
     } catch (error) {

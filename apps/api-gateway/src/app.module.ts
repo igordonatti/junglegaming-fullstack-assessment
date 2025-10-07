@@ -7,6 +7,8 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -14,6 +16,7 @@ import { APP_GUARD } from '@nestjs/core';
     AuthModule,
     TasksModule,
     PassportModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -22,6 +25,7 @@ import { APP_GUARD } from '@nestjs/core';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    NotificationsGateway,
   ],
 })
 export class AppModule {}

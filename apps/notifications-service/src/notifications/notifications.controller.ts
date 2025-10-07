@@ -12,18 +12,19 @@ export class NotificationsController {
   handleTaskCreated(
     @Payload()
     payload: {
-      data: Task;
-      user: { userId: string; username: string };
+      task: Task;
+      user: { id: string; username: string };
     },
   ) {
     console.log('--- Evento Recebido: task_created ---');
-    const { data, user } = payload;
+    console.log('payload', payload);
+    const { task, user } = payload;
 
-    const message = `${user.username} criou uma nova tarefa: ${data.title}`;
+    const message = `${user.username} criou uma nova tarefa: ${task.title}`;
 
     const notificationData: CreateNotificationDto = {
       message,
-      recipientId: user.userId,
+      recipientId: user.id,
     };
 
     const notification =
