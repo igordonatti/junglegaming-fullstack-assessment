@@ -23,9 +23,12 @@
     "packages/*"
   ],
   "dependencies": {
+    "@nestjs/microservices": "^11.1.6",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-socket.io": "^11.1.6",
     "@nestjs/websockets": "^11.1.6",
+    "amqp-connection-manager": "^5.0.0",
+    "amqplib": "^0.10.9",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "socket.io": "^4.8.1"

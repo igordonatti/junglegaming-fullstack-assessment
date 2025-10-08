@@ -9,6 +9,12 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 
+const usersHost = process.env.USERS_HOST || 'localhost';
+const usersPort = Number(process.env.USERS_PORT) || 3002;
+
+console.log('usersHost', usersHost);
+console.log('usersPort', usersPort);
+
 @Module({
   imports: [
     ConfigModule,
@@ -18,8 +24,8 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
         name: 'AUTH_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: '0.0.0.0', // auth-service host registered
-          port: 3002,
+          host: usersHost,
+          port: usersPort,
         },
       },
     ]),
