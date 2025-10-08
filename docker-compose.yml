@@ -30,8 +30,8 @@ services:
       - ./apps/api-gateway/.env
     command: npm run dev -- --filter=api-gateway
     volumes:
-      - ./:/usr/src/app
-      - node_modules:/usr/src/app/node_modules
+      - .:/app
+      - /app/node_modules
     networks:
       - challenge-network
     depends_on:
@@ -56,8 +56,8 @@ services:
       - ./apps/auth-service/.env
     command: npm run dev -- --filter=auth-service
     volumes:
-      - ./:/usr/src/app
-      - node_modules:/usr/src/app/node_modules
+      - .:/app
+      - /app/node_modules
     networks:
       - challenge-network
     depends_on:
@@ -76,8 +76,8 @@ services:
       - ./apps/tasks-service/.env
     command: npm run dev -- --filter=tasks-service
     volumes:
-      - ./:/usr/src/app
-      - node_modules:/usr/src/app/node_modules
+      - .:/app
+      - /app/node_modules
     networks:
       - challenge-network
     depends_on:
@@ -98,8 +98,8 @@ services:
       - ./apps/notifications-service/.env
     command: npm run dev -- --filter=notifications-service
     volumes:
-      - ./:/usr/src/app
-      - node_modules:/usr/src/app/node_modules
+      - .:/app
+      - /app/node_modules
     networks:
       - challenge-network
     depends_on:
