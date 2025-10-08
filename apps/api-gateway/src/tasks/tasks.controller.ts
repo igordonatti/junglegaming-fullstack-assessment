@@ -21,6 +21,7 @@ import { CreateCommentDTO } from './dto/createComment.dto';
 import { PaginationQueryDTO } from 'src/common/dto/pagination-query.dto';
 import { firstValueFrom } from 'rxjs';
 import { ResponseTaskDTO } from './dto/responseTask.dto';
+import { isPublic } from 'src/auth/decorators/is-public.decorator';
 
 @Controller('tasks')
 export class TasksController {
@@ -30,6 +31,7 @@ export class TasksController {
   ) {}
 
   @Get('health')
+  @isPublic()
   getTasksHealth() {
     console.log('Health check requested from api gateway to: tasks');
     return this.tasksClient.send({ cmd: 'get_tasks_health' }, {});

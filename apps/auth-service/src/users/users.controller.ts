@@ -11,6 +11,8 @@ export class UsersController {
 
   @MessagePattern({ cmd: 'auth_create_user' })
   async signUp(@Body() user: CreateUserDTO) {
+    console.log('UsersController: Remova esse log na entrega final');
+
     return await this.userService.createUser(user);
   }
 
