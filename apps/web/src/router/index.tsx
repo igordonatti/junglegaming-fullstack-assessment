@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createRootRoute, createRouter, Outlet, Link } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 import { useAuthStore } from '../contexts/auth-store'
@@ -8,6 +9,7 @@ import { getSocket } from '../lib/socket'
 import { Toaster } from '../components/ui/sonner'
 import { toast as sonnerToast } from 'sonner'
 import type { SocketNotification } from '../types/socket-events'
+import { useNotificationListener } from '@/hooks/useNotificationListener'
 
 export const rootRoute = createRootRoute({
   component: function RootComponent() {
@@ -15,6 +17,8 @@ export const rootRoute = createRootRoute({
     const unread = useNotificationsStore((s) => s.unreadCount)
     const addNotif = useNotificationsStore((s) => s.add)
     const toast = useToast((s) => s.toast)
+
+    useNotificationListener(); 
 
     useEffect(() => {
       const socket = getSocket()
@@ -34,15 +38,15 @@ export const rootRoute = createRootRoute({
         toast({ title: 'Novo comentário' })
         addNotif('Novo comentário')
       }
-      socket.on('new_notification', onNewNotification)
-      socket.on('task:created', onTaskCreated)
-      socket.on('task:updated', onTaskUpdated)
-      socket.on('comment:new', onCommentNew)
+      socket!.on('new_notification', onNewNotification)
+      socket!.on('task:created', onTaskCreated)
+      socket!.on('task:updated', onTaskUpdated)
+      socket!.on('comment:new', onCommentNew)
       return () => {
-        socket.off('new_notification', onNewNotification)
-        socket.off('task:created', onTaskCreated)
-        socket.off('task:updated', onTaskUpdated)
-        socket.off('comment:new', onCommentNew)
+        socket!.off('new_notification', onNewNotification)
+        socket!.off('task:created', onTaskCreated)
+        socket!.off('task:updated', onTaskUpdated)
+        socket!.off('comment:new', onCommentNew)
       }
     }, [addNotif, toast])
     

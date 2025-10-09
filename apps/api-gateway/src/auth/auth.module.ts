@@ -9,23 +9,25 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 
-const usersHost = process.env.USERS_HOST || 'localhost';
-const usersPort = Number(process.env.USERS_PORT) || 3002;
-
-console.log('usersHost', usersHost);
-console.log('usersPort', usersPort);
-
 @Module({
   imports: [
     ConfigModule,
     PassportModule,
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: 'AUTH_SERVICE',
-        transport: Transport.TCP,
-        options: {
-          host: usersHost,
-          port: usersPort,
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => {
+          const host = configService.get<string>('USERS_HOST', 'localhost');
+          const port = Number(configService.get('USERS_PORT', 3002));
+          return {
+            transport: Transport.TCP,
+            options: {
+              host,
+              port,
+            },
+          };
         },
       },
     ]),

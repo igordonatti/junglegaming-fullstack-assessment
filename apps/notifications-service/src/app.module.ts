@@ -12,7 +12,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     NotificationsModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './.env',
+      envFilePath: ['.env', '.env.docker'],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],

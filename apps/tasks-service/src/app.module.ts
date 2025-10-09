@@ -10,7 +10,7 @@ import { CommentsModule } from './comments/comments.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './.env',
+      envFilePath: ['.env', '.env.docker'],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
