@@ -9,10 +9,10 @@ services:
       - '5173:5173'
     env_file:
       - ./apps/web/.env
-    command: npm run dev -- --filter=web
+    command: sh -c "cd apps/web && npm ci && npm run dev"
     volumes:
       - ./:/usr/src/app
-      - node_modules:/usr/src/app/node_modules
+      - web_node_modules:/usr/src/app/node_modules
     networks:
       - challenge-network
     depends_on:
@@ -110,7 +110,7 @@ services:
 
   # --- Banco de Dados -------------------------------------
   db:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     container_name: db
     ports:
       - '5432:5432'
@@ -144,7 +144,7 @@ services:
 volumes:
   postgres_data:
   rabbitmq_data:
-  node_modules:
+  web_node_modules:
 
 networks:
   challenge-network:

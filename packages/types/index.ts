@@ -46,17 +46,18 @@ export type CreateTaskPayload = {
   title: string;
   description?: string;
   priority: TaskPriority;
-  // Não inclua creatorId, assigneeIds, status, etc. – são definidos pelo backend ou em UpdateTaskPayload
 };
 
 export type UpdateTaskPayload = Partial<CreateTaskPayload> & {
   status?: TaskStatus;
-  assigneeIds?: string[]; // Para atribuir/desatribuir usuários
+  assigneeIds?: string[];
   dueDate?: string | null;
 };
 
 export type CreateCommentPayload = {
   content: string;
+  taskId: string;
+  authorId: string;
 };
 
 export interface PaginatedResponse<T> {

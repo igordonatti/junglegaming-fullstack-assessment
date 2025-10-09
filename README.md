@@ -3,6 +3,8 @@
 # Igor - README
 Este projeto foi desenvolvido para um teste técnico do processo seletivo da empresa JungleGaming. Irei colocar abaixo as explicações para o projeto, mas se quiser ir direto ao ponto de configuração para rodar, basta descer até #turborepo-starter. Para fins de entrega, se você ta lendo isso, acredito que seja o recrutador. Eu não consegui finalizar a notificação no frontend e não consegui configurar o docker-compose file a tempo de entregar, procurarei finalizar para o projeto ficar redondo, mas para a entrega não consegui. O projeto esta funcionando com todos os requisitos (Rabbit, microservice, api gateway, etc). Se não rodar em docker-compose, o turbo repo dev funcionará, acredito eu.
 
+Postman da aplicação: https://www.postman.com/igor-donatti/workspace/igor-donatti/collection/9236537-84a27067-bc80-4973-91a7-7e2bffead2f7?action=share&creator=9236537
+
 # Desafio Full-stack Júnior — Sistema de Gestão de Tarefas Colaborativo
 
 Esta é a implementação do desafio prático para a vaga de Full-stack Developer Júnior na Jungle Gaming. O projeto consiste em um Sistema de Gestão de Tarefas Colaborativo construído sobre uma arquitetura de microsserviços, com comunicação em tempo real e orquestrado com Docker.

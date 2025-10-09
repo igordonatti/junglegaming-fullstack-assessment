@@ -3,6 +3,7 @@ import { CommentsService } from './comments.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateCommentDTO } from './dto/createComment.dto';
 import { PaginationQueryDTO } from 'src/common/dto/pagination-query.dto';
+import { UserDTO } from 'src/tasks/dto/user.dto';
 
 @Controller('comments')
 export class CommentsController {
@@ -10,11 +11,11 @@ export class CommentsController {
 
   @MessagePattern({ cmd: 'create_comment' })
   async createComment(
-    @Payload() payload: { createCommentDto: CreateCommentDTO; userId: string },
+    @Payload() payload: { createCommentDto: CreateCommentDTO; user: UserDTO },
   ) {
     return await this.commentsService.createComment(
       payload.createCommentDto,
-      payload.userId,
+      payload.user?.id,
     );
   }
 

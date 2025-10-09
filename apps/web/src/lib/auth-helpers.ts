@@ -37,3 +37,30 @@ export function isRefreshingToken() {
 export function setRefreshingTokenPromise(promise: Promise<unknown> | null) {
   refreshingPromise = promise;
 }
+
+export type DecodedUser = {
+  id?: string;
+  sub?: string;
+  email?: string;
+  username?: string;
+  [key: string]: unknown;
+};
+
+export function decodeJwt(token: string | null): DecodedUser | null {
+  if (!token) return null;
+  try {
+    const [, payload] = token.split(".");
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json) as DecodedUser;
+  } catch {
+    return null;
+  }
+}
+
+export function getCurrentUserId(): string | null {
+  const { access_token } = getTokens();
+  const decoded = decodeJwt(access_token);
+  if (!decoded) return null;
+  const candidate = (decoded.id as string) || (decoded.sub as string) || null;
+  return typeof candidate === "string" ? candidate : null;
+}

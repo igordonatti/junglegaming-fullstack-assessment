@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getComments, createComment } from "../api/tasks";
+import { getCurrentUserId } from "../lib/auth-helpers";
 
 export function useCommentsQuery(
   taskId: string,
@@ -15,8 +16,14 @@ export function useCommentsQuery(
 export function useCreateCommentMutation(taskId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Parameters<typeof createComment>[1]) =>
-      createComment(taskId, payload),
+    mutationFn: (payload: Parameters<typeof createComment>[1]) => {
+      const authorId = getCurrentUserId();
+      return createComment(taskId, {
+        ...payload,
+        taskId,
+        authorId: authorId ?? "",
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["comments", taskId] });
     },
