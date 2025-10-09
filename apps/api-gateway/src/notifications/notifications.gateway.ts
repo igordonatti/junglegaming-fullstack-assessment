@@ -43,6 +43,14 @@ export class NotificationsGateway
   // mas considero um erro, deveria ser importada a interface de varias tipos de notificações
   sendNotificationToUser(userId: string, notification: any) {
     console.log('sendNotificationToUser', userId, notification);
-    this.server.emit('new_notification', notification);
+    const socketId = this.connectedUsers.get(userId);
+    if (socketId) {
+      this.server.to(socketId).emit('new_notification', notification);
+    } else {
+      this.logger.warn(
+        `No active socket for userId=${userId}. Broadcasting as fallback.`,
+      );
+      this.server.emit('new_notification', notification);
+    }
   }
 }

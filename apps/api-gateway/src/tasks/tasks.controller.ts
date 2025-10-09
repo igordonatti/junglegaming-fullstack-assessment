@@ -118,6 +118,7 @@ export class TasksController {
   ) {
     const user = req.user;
     createCommentDto.taskId = taskId;
+    console.log('createCommentDto', createCommentDto);
 
     const payload = {
       createCommentDto,

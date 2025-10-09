@@ -15,8 +15,7 @@ export class TasksController {
   async createTask(
     @Payload() payload: { createTaskDto: CreateTaskDTO; user: UserDTO },
   ) {
-    console.log('TaskController: Remova esse log na entrega final');
-
+    console.log('TasksController: Remova esse log na entrega final', payload);
     return await this.taskService.createTask(
       payload.createTaskDto,
       payload.user,

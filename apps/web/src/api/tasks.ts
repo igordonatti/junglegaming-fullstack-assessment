@@ -46,6 +46,7 @@ export async function createComment(
   taskId: string,
   payload: CreateCommentPayload
 ) {
+  console.log("createComment", payload);
   const { data } = await axiosInstance.post(
     `/tasks/${taskId}/comments`,
     payload

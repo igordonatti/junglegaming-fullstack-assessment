@@ -1,6 +1,7 @@
 import { io, Socket } from "socket.io-client";
 
-const URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+// Socket.IO server runs on the same HTTP port as the API Gateway (3000 by default)
+const URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 let socket: Socket | null;
 

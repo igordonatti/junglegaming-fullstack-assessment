@@ -28,7 +28,6 @@ export class UsersController {
 
   @MessagePattern({ cmd: 'get_users_by_ids' })
   async getByIds(@Payload() payload: { userIds: string[] }) {
-    console.log('estou no controller', payload.userIds);
     return await this.userService.findUsersByIds(payload.userIds);
   }
 }

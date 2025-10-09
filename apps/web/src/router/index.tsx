@@ -5,11 +5,12 @@ import { useAuthStore } from '../contexts/auth-store'
 import { useNotificationsStore } from '../contexts/notifications-store'
 import { ToastViewport, useToast } from '../components/ui/toast'
 import { useEffect } from 'react'
-import { getSocket } from '../lib/socket'
+import { getSocket, initSocket, disconnectSocket } from '../lib/socket'
 import { Toaster } from '../components/ui/sonner'
 import { toast as sonnerToast } from 'sonner'
 import type { SocketNotification } from '../types/socket-events'
 import { useNotificationListener } from '@/hooks/useNotificationListener'
+import { getCurrentUserId } from '@/lib/auth-helpers'
 
 export const rootRoute = createRootRoute({
   component: function RootComponent() {
@@ -21,7 +22,19 @@ export const rootRoute = createRootRoute({
     useNotificationListener(); 
 
     useEffect(() => {
+      if (isAuthenticated) {
+        const userId = getCurrentUserId()
+        if (userId) {
+          initSocket(userId)
+        }
+      } else {
+        disconnectSocket()
+      }
+    }, [isAuthenticated])
+
+    useEffect(() => {
       const socket = getSocket()
+      if (!socket) return
       const onNewNotification = (payload: SocketNotification) => {
         sonnerToast(payload.message)
         addNotif(payload.message)
@@ -38,15 +51,15 @@ export const rootRoute = createRootRoute({
         toast({ title: 'Novo comentário' })
         addNotif('Novo comentário')
       }
-      socket!.on('new_notification', onNewNotification)
-      socket!.on('task:created', onTaskCreated)
-      socket!.on('task:updated', onTaskUpdated)
-      socket!.on('comment:new', onCommentNew)
+      socket.on('new_notification', onNewNotification)
+      socket.on('task:created', onTaskCreated)
+      socket.on('task:updated', onTaskUpdated)
+      socket.on('comment:new', onCommentNew)
       return () => {
-        socket!.off('new_notification', onNewNotification)
-        socket!.off('task:created', onTaskCreated)
-        socket!.off('task:updated', onTaskUpdated)
-        socket!.off('comment:new', onCommentNew)
+        socket.off('new_notification', onNewNotification)
+        socket.off('task:created', onTaskCreated)
+        socket.off('task:updated', onTaskUpdated)
+        socket.off('comment:new', onCommentNew)
       }
     }, [addNotif, toast])
     
