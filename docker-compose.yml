@@ -9,7 +9,7 @@ services:
       - '5173:5173'
     env_file:
       - ./apps/web/.env
-    command: sh -c "cd apps/web && npm ci && npm run dev"
+    command: sh -c "cd apps/web && npm install && npm run dev"
     volumes:
       - ./:/usr/src/app
       - web_node_modules:/usr/src/app/node_modules
@@ -30,8 +30,8 @@ services:
       - ./apps/api-gateway/.env
     command: npm run dev -- --filter=api-gateway
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - challenge-network
     depends_on:
@@ -56,8 +56,8 @@ services:
       - ./apps/auth-service/.env
     command: npm run dev -- --filter=auth-service
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - challenge-network
     depends_on:
@@ -76,8 +76,8 @@ services:
       - ./apps/tasks-service/.env
     command: npm run dev -- --filter=tasks-service
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - challenge-network
     depends_on:
@@ -98,8 +98,8 @@ services:
       - ./apps/notifications-service/.env
     command: npm run dev -- --filter=notifications-service
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - challenge-network
     depends_on:
@@ -110,7 +110,7 @@ services:
 
   # --- Banco de Dados -------------------------------------
   db:
-    image: postgres:17-alpine
+    image: postgres:16-alpine
     container_name: db
     ports:
       - '5432:5432'
