@@ -16,7 +16,6 @@ export class NotificationsController {
     // Expected payload shape: { notification: NotificationEntity, user: string }
     if (!payload || !payload.notification) return;
     const { notification } = payload;
-    console.log('notification_created payload', payload);
     const recipientId = notification.recipientId;
     this.notificationsGateway.sendNotificationToUser(recipientId, notification);
   }

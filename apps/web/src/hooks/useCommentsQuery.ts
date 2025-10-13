@@ -1,12 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getComments, createComment } from "../api/tasks";
 import { getCurrentUserId } from "../lib/auth-helpers";
+import type { CommentWithAuthor, Paginated } from "@/types/comment";
+import type { Comment as CommentEntity } from "../../../../packages/types/index";
+
+type CreateCommentInput = { content: string };
 
 export function useCommentsQuery(
   taskId: string,
   params: { page?: number; limit?: number } = {}
 ) {
-  return useQuery({
+  return useQuery<Paginated<CommentWithAuthor>>({
     queryKey: ["comments", taskId, params],
     queryFn: () => getComments(taskId, params),
     enabled: Boolean(taskId),
@@ -15,11 +19,11 @@ export function useCommentsQuery(
 
 export function useCreateCommentMutation(taskId: string) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: Parameters<typeof createComment>[1]) => {
+  return useMutation<CommentEntity, unknown, CreateCommentInput>({
+    mutationFn: (payload: CreateCommentInput) => {
       const authorId = getCurrentUserId();
       return createComment(taskId, {
-        ...payload,
+        content: payload.content,
         taskId,
         authorId: authorId ?? "",
       });

@@ -8,6 +8,7 @@ import type {
   PaginatedResponse,
   User,
 } from "../../../../packages/types/index";
+import type { CommentWithAuthor, Paginated } from "@/types/comment";
 
 export async function getTasks(params: {
   page?: number;
@@ -61,7 +62,7 @@ export async function getComments(
   const { data } = await axiosInstance.get(`/tasks/${taskId}/comments`, {
     params,
   });
-  return data as PaginatedResponse<Comment>;
+  return data as Paginated<CommentWithAuthor>;
 }
 
 // USERS

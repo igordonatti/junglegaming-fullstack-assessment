@@ -1,24 +1,20 @@
 import { useEffect } from "react";
 import { getSocket } from "@/lib/socket";
-import { useToast } from "@/components/ui/toast";
 import { useNotificationsStore } from "@/contexts/notifications-store";
+import { toast } from "sonner";
 
 export function useNotificationListener() {
   const { add } = useNotificationsStore();
-  const { toast } = useToast();
 
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
 
-    const onNewNotification = (notification: {
-      message: string;
-      title: string;
-    }) => {
-      add(notification.title);
+    const onNewNotification = (notification: { message: string }) => {
+      console.log("Nova notificação recebida:", notification);
+      add(notification.message);
 
-      toast({
-        title: "Nova Notificação ✨",
+      toast("Nova Notificação ✨", {
         description: notification.message,
       });
     };

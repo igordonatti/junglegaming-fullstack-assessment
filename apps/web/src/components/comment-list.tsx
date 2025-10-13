@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCommentsQuery, useCreateCommentMutation } from '../hooks/useCommentsQuery'
+import type { CommentWithAuthor } from '@/types/comment'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 
@@ -14,15 +15,23 @@ export function CommentList({ taskId }: { taskId: string }) {
   return (
     <div className="space-y-3">
       <div className="space-y-2">
-        {data?.items.map((c) => (
+        {data?.items.map((c: CommentWithAuthor) => (
           <div key={c.id} className="rounded border p-2 text-sm">
-            {c.content}
+            <div className="text-xs text-muted-foreground mb-1">
+              {c.author?.username || c.author?.email || 'Usuário' }
+            </div>
+            <div>{c.content}</div>
           </div>
         ))}
       </div>
       <div className="flex gap-2">
         <Input value={content} onChange={(e) => setContent(e.target.value)} placeholder="Novo comentário" />
-        <Button onClick={() => { if (content.trim()) { createComment.mutate({ content }); setContent('') } }}>Adicionar</Button>
+        <Button onClick={() => {
+          if (content.trim()) {
+            createComment.mutate({ content });
+            setContent('');
+          }
+        }}>Adicionar</Button>
       </div>
       <div className="flex gap-2">
         <Button variant="outline" disabled={page<=1} onClick={() => setPage((p)=>p-1)}>Anterior</Button>

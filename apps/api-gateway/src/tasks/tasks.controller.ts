@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
@@ -138,6 +140,50 @@ export class TasksController {
       paginationQuery: paginationDto,
     };
 
-    return this.tasksClient.send({ cmd: 'all_comments_for_task' }, payload);
+    // Enrich comments with author data from Users Service
+    return firstValueFrom(
+      this.tasksClient.send({ cmd: 'all_comments_for_task' }, payload),
+    ).then(async (paginated: any) => {
+      try {
+        const items: Array<{ authorId?: string }> = Array.isArray(
+          paginated?.items,
+        )
+          ? paginated.items
+          : [];
+
+        const authorIds = Array.from(
+          new Set(
+            items
+              .map((c) => c.authorId)
+              .filter((id): id is string => typeof id === 'string'),
+          ),
+        );
+
+        if (authorIds.length === 0) return paginated;
+
+        const users = await firstValueFrom(
+          this.usersClient.send(
+            { cmd: 'get_users_by_ids' },
+            { userIds: authorIds },
+          ),
+        );
+
+        const byId = new Map<string, any>();
+        if (Array.isArray(users)) {
+          for (const u of users) {
+            if (u?.id) byId.set(u.id as string, u);
+          }
+        }
+
+        const enrichedItems = items.map((c: any) => ({
+          ...c,
+          author: c.authorId ? (byId.get(c.authorId) ?? undefined) : undefined,
+        }));
+
+        return { ...paginated, items: enrichedItems };
+      } catch {
+        return paginated;
+      }
+    });
   }
 }

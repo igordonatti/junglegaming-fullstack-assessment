@@ -16,7 +16,7 @@ import { NotificationsController } from './notifications.controller';
             config.get<string>('API_GATEWAY_HOST') ||
             (config.get<string>('NODE_ENV') === 'production'
               ? 'api-gateway'
-              : '0.0.0.0');
+              : 'localhost');
           const port = Number(config.get('API_GATEWAY_PORT', 3001));
           return {
             transport: Transport.TCP,

@@ -14,6 +14,7 @@ import { getCurrentUserId } from '@/lib/auth-helpers'
 
 export const rootRoute = createRootRoute({
   component: function RootComponent() {
+
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
     const unread = useNotificationsStore((s) => s.unreadCount)
     const addNotif = useNotificationsStore((s) => s.add)
@@ -36,6 +37,7 @@ export const rootRoute = createRootRoute({
       const socket = getSocket()
       if (!socket) return
       const onNewNotification = (payload: SocketNotification) => {
+        if (!payload?.message) return
         sonnerToast(payload.message)
         addNotif(payload.message)
       }

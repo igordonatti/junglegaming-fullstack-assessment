@@ -8,8 +8,6 @@ let socket: Socket | null;
 export const initSocket = (userId: string): Socket => {
   if (socket) return socket;
 
-  // Conecta ao servidor, passando o userId como query.
-  // O backend usará isso no handleConnection.
   socket = io(URL, {
     query: {
       userId,

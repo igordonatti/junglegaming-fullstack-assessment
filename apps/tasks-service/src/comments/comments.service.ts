@@ -38,9 +38,28 @@ export class CommentsService {
       task: { id: task.id },
     });
 
-    this.notificationsClient.emit('comment_created', newComment);
+    const saved = await this.commentRepository.save(newComment);
 
-    return this.commentRepository.save(newComment);
+    if (task.creatorId) {
+      this.notificationsClient.emit('comment_created', {
+        comment: saved,
+        task,
+        recipientId: task.creatorId,
+      });
+    }
+
+    const assignees = Array.isArray(task.assigneeIds) ? task.assigneeIds : [];
+    for (const assigneeId of assignees) {
+      if (assigneeId !== task.creatorId) {
+        this.notificationsClient.emit('comment_created', {
+          comment: saved,
+          task,
+          recipientId: assigneeId,
+        });
+      }
+    }
+
+    return saved;
   }
 
   async findAllForTask(taskId: string, options: IPaginationOptions) {

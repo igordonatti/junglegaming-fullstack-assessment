@@ -42,6 +42,19 @@ export class TasksService {
 
       this.notificationsClient.emit('task_created', { task: savedTask, user });
 
+      if (
+        Array.isArray(savedTask.assigneeIds) &&
+        savedTask.assigneeIds.length > 0
+      ) {
+        for (const assignedUserId of savedTask.assigneeIds) {
+          this.notificationsClient.emit('task_assigned', {
+            task: savedTask,
+            assignedUserId,
+            user,
+          });
+        }
+      }
+
       return savedTask;
     } catch (err) {
       this.logger.error(err.message);
@@ -65,12 +78,36 @@ export class TasksService {
           new ForbiddenException('Você não é autorizado a editar esta task.'),
         );
 
+      const previousAssigneeIds = Array.isArray(task.assigneeIds)
+        ? [...task.assigneeIds]
+        : [];
+
       const updatedTask = Object.assign(task, updateTaskDto);
+      const savedTask = await this.taskRepository.save(updatedTask);
+
+      // Emit generic update event
       this.notificationsClient.emit('task_updated', {
-        task: updatedTask,
+        task: savedTask,
         user,
       });
-      return this.taskRepository.save(updatedTask);
+
+      // If assignees changed, notify only newly added assignees
+      const nextAssigneeIds = Array.isArray(savedTask.assigneeIds)
+        ? savedTask.assigneeIds
+        : [];
+      const newlyAssigned = nextAssigneeIds.filter(
+        (assigneeId) => !previousAssigneeIds.includes(assigneeId),
+      );
+
+      for (const assignedUserId of newlyAssigned) {
+        this.notificationsClient.emit('task_assigned', {
+          task: savedTask,
+          assignedUserId,
+          user, // who assigned
+        });
+      }
+
+      return savedTask;
     } catch (err) {
       this.logger.error(err.message);
       throw new RpcException(
