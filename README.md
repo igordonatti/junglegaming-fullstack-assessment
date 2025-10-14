@@ -89,16 +89,15 @@ Dado o escopo e o prazo do desafio, alguns pontos foram implementados de forma f
 
 -   **Otimização do Ambiente Docker:** O `docker-compose.yml` utilizado foi o sugerido, focado no ambiente de desenvolvimento com volumes para *hot-reloading*. Para produção, seria necessário criar um `docker-compose.prod.yml` e otimizar os Dockerfiles (com *multi-stage builds*) para gerar imagens menores e mais seguras.
 
-## 4. Tempo Gasto (Preencha com suas estimativas)
+## 4. Tempo Gasto
 
 | Etapa                                              | Tempo Estimado Gasto |
 | :------------------------------------------------- | :------------------- |
-| **Fase 1:** Estrutura, Ambiente e Docker           | `[Ex: 8 horas]`      |
-| **Fase 2:** Backend - Autenticação, CRUD, Relações | `[Ex: 20 horas]`     |
-| **Fase 3:** Backend - RabbitMQ e Notificações      | `[Ex: 12 horas]`     |
-| **Fase 4:** Frontend - UI e Integração com API     | `[Ex: 24 horas]`     |
-| **Fase 5:** Refatoração, Depuração e Documentação  | `[Ex: 8 horas]`      |
-| **Total** | `[Ex: 72 horas]`     |
+| **Fase 1:** Estrutura, Ambiente e Docker           | `10 horas`      |
+| **Fase 2:** Backend - Autenticação, CRUD, Relações | `20 horas`     |
+| **Fase 3:** Backend - RabbitMQ e Notificações      | `15 horas`     |
+| **Fase 4:** Frontend - UI e Integração com API     | `14 horas`     |
+| **Fase 5:** Refatoração, Depuração e Documentação  | `2 horas`      |
 
 ## 5. Instruções de Execução
 
@@ -123,6 +122,7 @@ Para subir toda a stack (frontend, todos os microsserviços, banco de dados e Ra
 ```bash
 docker-compose up --build
 ```
+
 
 
 
